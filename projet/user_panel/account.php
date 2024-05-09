@@ -1,43 +1,45 @@
 <?php
+session_start();
 
-
-// Include config file
-include 'classes/_leaverequest.php';
 include 'config.php';
 
-$conn = new mysqli(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_DATABASE);
+$message = '';
 
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
-
+// Check if the form is submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Get employee ID from session variable
-    $employeeID = 1;
+    // Get the form data
+    $employee_id = $_POST['employee_id'];
+    $new_email = $_POST['new_email'];
+    $new_name = $_POST['new_name'];
+    $new_password = $_POST['new_password']; // Make sure to hash the password before storing it in the database
 
-    // Get current date
-    $requestDate = date("Y-m-d");
+    // Create a database connection
+    $conn = new mysqli(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_DATABASE);
 
-    // Set other form data
-    $startDate = $_POST['start_date'];
-    $endDate = $_POST['end_date'];
-    $status = 'Pending';
-    $managerID = null;
+    // Check the connection
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    }
 
-    // Create a new request object
-    $request = new Request($employeeID, $requestDate, $startDate, $endDate, $status, $managerID);
+    // Prepare and execute the update query
+    $sql = "UPDATE employees SET Email=?, FirstName=?, Password=? WHERE EmployeeID=?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("sssi", $new_email, $new_name, $new_password, $employee_id);
+    $stmt->execute();
 
+    // Check if the update was successful
+    if ($stmt->affected_rows > 0) {
+        $message = "Employee information updated successfully.";
+    } else {
+        $message = "Failed to update employee information.";
+    }
 
-    // Insert the request
-    $request->insert($conn);
+    // Close the statement and the database connection
+    $stmt->close();
+    $conn->close();
 }
 
-
-// Close connection
-$conn->close();
 ?>
-
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -50,7 +52,7 @@ $conn->close();
     <meta name="keywords" content="au theme template">
 
     <!-- Title Page-->
-    <title>Dashboard 2</title>
+    <title>Account</title>
 
     <!-- Fontfaces CSS-->
     <link href="css/font-face.css" rel="stylesheet" media="all">
@@ -77,6 +79,38 @@ $conn->close();
 </head>
 
 <body class="animsition">
+    <header class="header-desktop2">
+                <div class="section__content section__content--p30">
+                    <div class="container-fluid">
+                        <div class="header-wrap2">
+                            <div class="logo d-block d-lg-none">
+                                <a href="#">
+                                    <img src="images/icon/logo-white.png" alt="CoolAdmin" />
+                                </a>
+                            </div>
+                            <div class="header-button2">
+                                <div class="header-button-item mr-0 js-sidebar-btn">
+                                    <i class="zmdi zmdi-menu"></i>
+                                </div>
+                                <div class="setting-menu js-right-sidebar d-none d-lg-block">
+                                    <div class="account-dropdown__body">
+                                        <div class="account-dropdown__item">
+                                            <a href="account.php">
+                                                <i class="zmdi zmdi-account"></i>Account</a>
+                                        </div>
+                                        <div class="account-dropdown__item">
+                                            <a href="#">
+                                                <i class="zmdi zmdi-settings"></i>Setting</a>
+                                        </div>
+                                        
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
     <div class="page-wrapper">
         <!-- MENU SIDEBAR-->
         <aside class="menu-sidebar2">
@@ -185,7 +219,28 @@ $conn->close();
                                             <a href="#">
                                                 <i class="zmdi zmdi-settings"></i>Setting</a>
                                         </div>
-
+                                        <div class="account-dropdown__item">
+                                            <a href="#">
+                                                <i class="zmdi zmdi-money-box"></i>Billing</a>
+                                        </div>
+                                    </div>
+                                    <div class="account-dropdown__body">
+                                        <div class="account-dropdown__item">
+                                            <a href="#">
+                                                <i class="zmdi zmdi-globe"></i>Language</a>
+                                        </div>
+                                        <div class="account-dropdown__item">
+                                            <a href="#">
+                                                <i class="zmdi zmdi-pin"></i>Location</a>
+                                        </div>
+                                        <div class="account-dropdown__item">
+                                            <a href="#">
+                                                <i class="zmdi zmdi-email"></i>Email</a>
+                                        </div>
+                                        <div class="account-dropdown__item">
+                                            <a href="#">
+                                                <i class="zmdi zmdi-notifications"></i>Notifications</a>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -244,7 +299,33 @@ $conn->close();
                                 <a href="#">
                                     <i class="fas fa-shopping-basket"></i>Gérer Demande Congé</a>
                             </li>
-
+                            <li class="has-sub">
+                                <a class="js-arrow" href="#">
+                                    <i class="fas fa-trophy"></i>Features
+                                    <span class="arrow">
+                                        <i class="fas fa-angle-down"></i>
+                                    </span>
+                                </a>
+                                <ul class="list-unstyled navbar__sub-list js-sub-list">
+                                    <li>
+                                        <a href="table.html">
+                                            <i class="fas fa-table"></i>Tables</a>
+                                    </li>
+                                    <li>
+                                        <a href="form.html">
+                                            <i class="far fa-check-square"></i>Forms</a>
+                                    </li>
+                                    <li>
+                                        <a href="calendar.html">
+                                            <i class="fas fa-calendar-alt"></i>Calendar</a>
+                                    </li>
+                                    <li>
+                                        <a href="map.html">
+                                            <i class="fas fa-map-marker-alt"></i>Maps</a>
+                                    </li>
+                                </ul>
+                            </li>
+                            
                         </ul>
                     </nav>
                 </div>
@@ -252,53 +333,30 @@ $conn->close();
             <!-- END HEADER DESKTOP-->
 
             <!-- BREADCRUMB-->
-            <section class="au-breadcrumb m-t-75">
-                <div class="section__content section__content--p30">
-                    <div class="container-fluid">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="au-breadcrumb-content">
-                                    <div class="au-breadcrumb-left">
-                                        <span class="au-breadcrumb-span">You are here:</span>
-                                        <ul class="list-unstyled list-inline au-breadcrumb__list">
-                                            <li class="list-inline-item active">
-                                                <a href="#">Home</a>
-                                            </li>
-                                            <li class="list-inline-item seprate">
-                                                <span>/</span>
-                                            </li>
-                                            <li class="list-inline-item">Dashboard</li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-            <!-- END BREADCRUMB-->
-
-            <!-- Conge Demande -->
-            <form method="POST"
-                style="max-width: 300px; margin: auto; padding: 20px; background-color: #fff; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
-                <h2 style="text-align: center; margin-bottom: 20px;">Demande Congé</h2>
-
-                <label for="start_date" style="display: block; margin-bottom: 5px;">Start Date:</label>
-                <input type="date" id="start_date" name="start_date" required
-                    style="width: calc(100% - 22px); padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box;">
-
-                <label for="end_date" style="display: block; margin-bottom: 5px;">End Date:</label>
-                <input type="date" id="end_date" name="end_date" required
-                    style="width: calc(100% - 22px); padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box;">
-
-                <input type="submit" value="Submit"
-                    style="width: calc(100% - 22px); padding: 10px; border: none; border-radius: 5px; background-color: #007bff; color: #fff; cursor: pointer; transition: background-color 0.3s ease;">
-            </form>
-
-
-
-
-
+            <h2>Update Employee Information</h2>
+    <?php if (!empty($message)): ?>
+        <p><?php echo $message; ?></p>
+    <?php endif; ?>
+    <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="POST">
+        <div>
+            <label for="employee_id">Employee ID:</label>
+            <input type="text" id="employee_id" name="employee_id" required>
+        </div>
+        <div>
+            <label for="new_email">New Email:</label>
+            <input type="email" id="new_email" name="new_email" required>
+        </div>
+        <div>
+            <label for="new_name">New Name:</label>
+            <input type="text" id="new_name" name="new_name" required>
+        </div>
+        <div>
+            <label for="new_password">New Password:</label>
+            <input type="password" id="new_password" name="new_password" required>
+        </div>
+        <button type="submit">Update</button>
+    </form>
+            
             <!-- END PAGE CONTAINER-->
         </div>
 

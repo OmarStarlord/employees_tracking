@@ -97,6 +97,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             <a href="gerer_congés.php">
                                 <i class="fas fa-shopping-basket"></i>Gerer Demande Congé</a>
                         </li>
+                        <li>
+                            <a href="gerer_evaluations.php">
+                                <i class="fas fa-shopping-basket"></i>Gerer Evaluation</a>
+                        </li>
                     </ul>
                 </nav>
             </div>
