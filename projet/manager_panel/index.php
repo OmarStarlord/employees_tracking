@@ -8,28 +8,17 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-# querry to find the number of employees
-$sql = "SELECT COUNT(*) FROM Employees";
-$result = $conn->query($sql);
-$row = $result->fetch_assoc();
-$employees = $row['COUNT(*)'];
+function getCount($conn, $table)
+{
+    $sql = "SELECT COUNT(*) as count FROM $table";
+    $result = $conn->query($sql);
+    $row = $result->fetch_assoc();
+    return $row['count'];
+}
 
-
-#querry to get count of LeaveRequests
-$sql = "SELECT COUNT(*) FROM LeaveRequests";
-$result = $conn->query($sql);
-$row = $result->fetch_assoc();
-$leave_requests = $row['COUNT(*)'];
-
-#querry to get count of PerformanceEvaluations
-$sql = "SELECT COUNT(*) FROM PerformanceEvaluations";
-$result = $conn->query($sql);
-$row = $result->fetch_assoc();
-$evaluations = $row['COUNT(*)'];
-
-
-
-
+$employees = getCount($conn, 'employees');
+$leave_requests = getCount($conn, 'leaverequests');
+$evaluations = getCount($conn, 'performanceevaluations');
 
 ?>
 
@@ -292,7 +281,7 @@ $evaluations = $row['COUNT(*)'];
                             <div class="col-md-6 col-lg-3">
                                 <div class="statistic__item">
                                     <h2 class="number">
-                                        <?
+                                        <?php
                                         echo $employees;
                                         ?>
                                     </h2>
@@ -302,7 +291,7 @@ $evaluations = $row['COUNT(*)'];
                             <div class="col-md-6 col-lg-3">
                                 <div class="statistic__item">
                                     <h2 class="number">
-                                        <?
+                                        <?php
                                         echo $leave_requests;
                                         ?>
                                     </h2>
@@ -315,18 +304,18 @@ $evaluations = $row['COUNT(*)'];
                             <div class="col-md-6 col-lg-3">
                                 <div class="statistic__item">
                                     <h2 class="number">
-                                        <?
+                                        <?php
                                         echo $evaluations;
                                         ?>
                                     </h2>
                                     <span class="desc">Evaluations</span>
-
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </section>
+
             <!-- END STATISTIC-->
 
             <section>

@@ -1,41 +1,67 @@
 <?php
-require_once 'config.php';
-include 'classes/_evaluation.php';
+include 'config.php';
 
+// Establish database connection
 $conn = new mysqli(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_DATABASE);
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $employee_id = $_POST['employee_id'];
-    $evaluation_date = $_POST['evaluation_date'];
-
-    // Define the target directory
-    $target_dir = "uploads/";
-
-    // Rename the uploaded file to a combination of employee ID and evaluation date
-    $target_file = $target_dir . $employee_id . '_' . $evaluation_date . '_' . basename($_FILES["evaluation_form"]["name"]);
-
-    // Instantiate Evaluation object
-    $evaluation = new Evaluation($employee_id, $evaluation_date, $target_file);
-
-    // Handle file upload
-    if (isset($_FILES["evaluation_form"]) && $_FILES["evaluation_form"]["error"] == 0) {
-        // Move uploaded file to target directory
-        if (move_uploaded_file($_FILES["evaluation_form"]["tmp_name"], $target_file)) {
-            // Insert the evaluation record
-            $evaluation->insert($conn);
-            echo "Evaluation submitted successfully.";
-        } else {
-            // Error moving uploaded file
-            echo "Error uploading file. Please try again.";
-        }
-    } else {
-        // No file uploaded or error occurred during upload
-        echo "Error uploading file. Please try again.";
-    }
+// Check for connection errors
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
 }
+
+// Initialize variables
+$employeeID = 1;
+$downloadLink = '';
+
+// Prepare and execute the query
+$sql = "SELECT * FROM performanceevaluations WHERE EmployeeID = ?";
+$stmt = $conn->prepare($sql);
+
+if ($stmt === false) {
+    die("Failed to prepare statement: " . $conn->error);
+}
+
+$stmt->bind_param("i", $employeeID);
+$resultExec = $stmt->execute();
+
+if ($resultExec === false) {
+    die("Error executing query: " . $stmt->error);
+}
+
+// Get result set
+$resultSet = $stmt->get_result();
+
+// Check if any rows are returned
+if ($resultSet->num_rows > 0) {
+    // Evaluation found, display the evaluation details or provide download link
+    while ($row = $resultSet->fetch_assoc()) {
+        $evaluationID = $row["EvaluationID"];
+        $evaluationDate = $row["EvaluationDate"];
+        
+        // Extract employee ID and evaluation date from the filename
+        $fileName = basename($row["EvaluationForm"]);
+        preg_match('/(\d+)_(\d{4}-\d{2}-\d{2})_/', $fileName, $matches);
+        $employeeID = $matches[1];
+        #$evaluationDate = $matches[2];
+
+        // Generate the new file path based on the extracted employee ID and evaluation date
+        $evaluationForm = "../manager_panel/uploads/" . $fileName;
+
+        // Generate download link for the evaluation form
+        $downloadLink = "<a href='$evaluationForm' download>Download Evaluation Form</a>";
+    }
+} else {
+    // No evaluation found for the provided employee ID
+    $downloadLink = "No evaluation found for the logged-in Employee ID.";
+}
+
+// Close statement and connection
+$stmt->close();
+$conn->close();
+
+// Output the download link
+echo $downloadLink;
 ?>
-
-
 
 
 <!DOCTYPE html>
@@ -50,7 +76,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta name="keywords" content="au theme template">
 
     <!-- Title Page-->
-    <title>Dashboard 2</title>
+    <title>Passer Evaluation</title>
 
     <!-- Fontfaces CSS-->
     <link href="css/font-face.css" rel="stylesheet" media="all">
@@ -95,27 +121,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 </div>
                 <nav class="navbar-sidebar2">
                     <ul class="list-unstyled navbar__list">
-
                         <li>
-                            <a href="index.php">
+                            <a href="#">
                                 <i class="fas fa-shopping-basket"></i>Dashboard</a>
                         </li>
                         <li>
-                            <a href="ajouter_employé.php">
-                                <i class="fas fa-shopping-basket"></i>Ajouter Employé</a>
+                            <a href="inbox.html">
+                                <i class="fas fa-chart-bar"></i>Horaire</a>
+                        <li>
+                            <a href="inbox.html">
+                                <i class="fas fa-chart-bar"></i>Soumettre Evaluation </a>
                         </li>
                         <li>
-                            <a href="creer_evaluation.php">
-                                <i class="fas fa-chart-bar"></i>Assigner Evaluation</a>
-                        <li>
-                            <a href="assigner_tache.php">
-                                <i class="fas fa-chart-bar"></i>Assigner Tache </a>
+                            <a href="#">
+                                <i class="fas fa-shopping-basket"></i>Demande Conger</a>
                         </li>
-                        <li>
-                            <a href="gerer_demande_conge.php">
-                                <i class="fas fa-shopping-basket"></i>Gerer Demande Congé</a>
-                        </li>
-
                     </ul>
                 </nav>
             </div>
@@ -279,38 +299,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </section>
             <!-- END BREADCRUMB-->
 
-            <!-- Creer Evaluation -->
-            <form method="POST" enctype="multipart/form-data"
-                style="max-width: 400px; margin: auto; padding: 20px; background-color: #f9f9f9; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
-                <h2 style="text-align: center; margin-bottom: 20px;">Create New Evaluation</h2>
-
-                <label for="employee_id" style="display: block; margin-bottom: 5px;">Employee:</label>
-                <select id="employee_id" name="employee_id" required
-                    style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; margin-bottom: 15px;">
-                    <?php
-                    // Assuming $conn is your database connection
-                    $sql = "SELECT EmployeeID, CONCAT(FirstName, ' ', LastName) AS FullName FROM Employees";
-                    $result = mysqli_query($conn, $sql);
-                    while ($row = mysqli_fetch_assoc($result)) {
-                        echo "<option value='" . $row['EmployeeID'] . "'>" . $row['FullName'] . "</option>";
-                    }
-                    ?>
-                </select>
-
-                <label for="evaluation_date" style="display: block; margin-bottom: 5px;">Evaluation Date:</label>
-                <input type="date" id="evaluation_date" name="evaluation_date" required
-                    style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; margin-bottom: 15px;">
-
-                <label for="evaluation_form" style="display: block; margin-bottom: 5px;">Evaluation Form:</label>
-                <input type="file" id="evaluation_form" name="evaluation_form" required
-                    style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; margin-bottom: 15px;">
-
-                <input type="submit" value="Create Evaluation"
-                    style="width: 100%; padding: 10px; border: none; border-radius: 5px; background-color: #007bff; color: #fff; cursor: pointer; transition: background-color 0.3s ease;">
-            </form>
-
-            <!-- End Creer Evaluation -->
-
+            <!-- download evaluatiion then submit the new corrected version  -->
+            <div class="container mt-4">
+                <h3>Evaluation Download</h3>
+                <?php echo $downloadLink; ?>
+            </div>
         </div>
 
     </div>

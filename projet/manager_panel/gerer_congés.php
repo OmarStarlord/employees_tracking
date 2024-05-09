@@ -1,3 +1,45 @@
+<?php
+include 'config.php';
+
+$conn = new mysqli(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_DATABASE);
+
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+$sql = "SELECT lr.RequestID, lr.EmployeeID, lr.RequestDate, lr.StartDate, lr.EndDate, lr.Status, lr.ManagerID, e.EmployeeName
+        FROM LeaveRequests lr
+        INNER JOIN Employees e ON lr.EmployeeID = e.EmployeeID";
+$result = $conn->query($sql);
+
+if ($result->num_rows > 0) {
+    // Output data of each row
+    echo '<div>';
+    echo '<table>';
+    echo '<tr><th>Request ID</th><th>Employee Name</th><th>Request Date</th><th>Start Date</th><th>End Date</th><th>Status</th><th>Manager ID</th></tr>';
+    while ($row = $result->fetch_assoc()) {
+        echo '<tr>';
+        echo '<td>' . $row["RequestID"] . '</td>';
+        echo '<td>' . $row["EmployeeName"] . '</td>';
+        echo '<td>' . $row["RequestDate"] . '</td>';
+        echo '<td>' . $row["StartDate"] . '</td>';
+        echo '<td>' . $row["EndDate"] . '</td>';
+        echo '<td>' . $row["Status"] . '</td>';
+        echo '<td>' . $row["ManagerID"] . '</td>';
+        echo '</tr>';
+    }
+    echo '</table>';
+    echo '</div>';
+} else {
+    echo "No leave requests found.";
+}
+
+$conn->close();
+?>
+
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -55,21 +97,27 @@
                 </div>
                 <nav class="navbar-sidebar2">
                     <ul class="list-unstyled navbar__list">
+
                         <li>
-                            <a href="#">
+                            <a href="index.php">
                                 <i class="fas fa-shopping-basket"></i>Dashboard</a>
                         </li>
                         <li>
-                            <a href="inbox.html">
-                                <i class="fas fa-chart-bar"></i>Horaire</a>
-                        <li>
-                            <a href="inbox.html">
-                                <i class="fas fa-chart-bar"></i>Soumettre Evaluation </a>
+                            <a href="ajouter_employé.php">
+                                <i class="fas fa-shopping-basket"></i>Ajouter Employé</a>
                         </li>
                         <li>
-                            <a href="#">
-                                <i class="fas fa-shopping-basket"></i>Demande Conger</a>
+                            <a href="creer_evaluation.php">
+                                <i class="fas fa-chart-bar"></i>Assigner Evaluation</a>
+                        <li>
+                            <a href="assigner_tache.php">
+                                <i class="fas fa-chart-bar"></i>Assigner Tache </a>
                         </li>
+                        <li>
+                            <a href="gerer_demande_conge.php">
+                                <i class="fas fa-shopping-basket"></i>Gerer Demande Congé</a>
+                        </li>
+
                     </ul>
                 </nav>
             </div>
@@ -233,26 +281,10 @@
             </section>
             <!-- END BREADCRUMB-->
 
-            <!-- Conge Demande -->
-            <form action="submit_request.php" method="POST"
-                style="max-width: 300px; margin: auto; padding: 20px; background-color: #fff; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
-                <h2 style="text-align: center;">Demande Congé</h2>
-                <label for="start_date" style="display: block; margin-bottom: 5px;">Start Date:</label>
-                <input type="date" id="start_date" name="start_date" required
-                    style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box;">
+            <div id="leave_requests_div">
+    <!-- Leave requests will be displayed here -->
+    </div>
 
-                <label for="end_date" style="display: block; margin-bottom: 5px;">End Date:</label>
-                <input type="date" id="end_date" name="end_date" required
-                    style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box;">
-
-                <input type="submit" value="Submit"
-                    style="width: 100%; padding: 10px; border: none; border-radius: 5px; background-color: #007bff; color: #fff; cursor: pointer; transition: background-color 0.3s ease;">
-            </form>
-
-
-
-
-            <!-- END PAGE CONTAINER-->
         </div>
 
     </div>

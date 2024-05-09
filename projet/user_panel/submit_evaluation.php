@@ -1,3 +1,63 @@
+<?php
+session_start();
+
+include 'config.php';
+
+$conn = new mysqli(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_DATABASE);
+
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+
+if (isset($_FILES["evaluation_form"])) {
+    $employeeID = 1; // Assuming employeeID is stored in session
+
+    // Define the target directory
+    $target_dir = "uploads/";
+
+    // Create the uploads directory if it doesn't exist
+    if (!file_exists($target_dir)) {
+        mkdir($target_dir, 0777, true); // Create directory recursively
+    }
+
+    // Get the file name
+    $file_name = basename($_FILES["evaluation_form"]["name"]);
+
+    // Generate a unique file name using old name + done / the done should be added before type 
+    $unique_file_name = $file_name ;
+
+    // Set the target file path
+    $target_file = $target_dir . $unique_file_name;
+
+
+    if (move_uploaded_file($_FILES["evaluation_form"]["tmp_name"], $target_file)) {
+
+        $sql = "UPDATE performanceevaluations SET EvaluationForm = ? WHERE EmployeeID = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("si", $target_file, $employeeID);
+        if ($stmt->execute()) {
+            echo "Evaluation form updated successfully.";
+        } else {
+            echo "Error: " . $stmt->error;
+        }
+        $stmt->close();
+    } else {
+        // Error moving uploaded file
+        echo "Error uploading file. Please try again.";
+    }
+} else {
+    // No file uploaded
+    echo "No file uploaded.";
+}
+
+
+// Close connection
+$conn->close();
+?>
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -10,7 +70,7 @@
     <meta name="keywords" content="au theme template">
 
     <!-- Title Page-->
-    <title>Dashboard 2</title>
+    <title>Passer Evaluation</title>
 
     <!-- Fontfaces CSS-->
     <link href="css/font-face.css" rel="stylesheet" media="all">
@@ -233,22 +293,26 @@
             </section>
             <!-- END BREADCRUMB-->
 
-            <!-- Conge Demande -->
-            <div class="file-section"
-                style="max-width: 400px; margin: auto; padding: 20px; background-color: #fff; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
-                <h2 style="text-align: center;">Telecharger Evaluation</h2>
-                <p style="text-align: center;"><a href="path/to/your/file.pdf" download
-                        style="text-decoration: none; color: #007bff; border: 1px solid #007bff; padding: 10px 20px; border-radius: 5px; display: inline-block;">Telecharger
-                        Evaluation</a></p>
+            <!-- submit evaluatiion -->
+            <form method="post" enctype="multipart/form-data">
+                <div class="col-lg-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <strong>Passer Evaluation</strong>
+                        </div>
+                        <div class="card-body card-block">
+                            <div class="form-group
+                                <label for=" company" class=" form-control-label">Evaluation Form</label>
+                                <input type="file" id="evaluation_form" name="evaluation_form"
+                                    class="form-control-file">
+                            </div>
+                            <button type="submit" class="btn btn-primary">Submit</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
 
-                <h2 style="text-align: center;">Soumettre Evaluation</h2>
-                <form action="upload.php" method="post" enctype="multipart/form-data" style="text-align: center;">
-                    <input type="file" name="fileToUpload" id="fileToUpload" required
-                        style="display: block; margin: auto; margin-bottom: 15px;">
-                    <input type="submit" value="Upload File" name="submit"
-                        style="background-color: #007bff; color: #fff; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; transition: background-color 0.3s ease;">
-                </form>
-            </div>
+
 
 
 
