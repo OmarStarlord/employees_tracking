@@ -96,7 +96,7 @@ $evaluations = getCount($conn, 'performanceevaluations');
                                 <i class="fas fa-chart-bar"></i>Assigner Tache </a>
                         </li>
                         <li>
-                            <a href="gerer_demande_conge.php">
+                            <a href="gerer_congés.php">
                                 <i class="fas fa-shopping-basket"></i>Gerer Demande Congé</a>
                         </li>
 

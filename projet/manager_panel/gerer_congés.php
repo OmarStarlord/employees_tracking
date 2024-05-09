@@ -1,44 +1,34 @@
 <?php
-include 'config.php';
 
+include 'config.php';
 $conn = new mysqli(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_DATABASE);
 
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Retrieve data from the form
+    $requestID = $_POST['request_id'];
+    $status = $_POST['status'];
+    
+    
 
-$sql = "SELECT lr.RequestID, lr.EmployeeID, lr.RequestDate, lr.StartDate, lr.EndDate, lr.Status, lr.ManagerID, e.EmployeeName
-        FROM LeaveRequests lr
-        INNER JOIN Employees e ON lr.EmployeeID = e.EmployeeID";
-$result = $conn->query($sql);
-
-if ($result->num_rows > 0) {
-    // Output data of each row
-    echo '<div>';
-    echo '<table>';
-    echo '<tr><th>Request ID</th><th>Employee Name</th><th>Request Date</th><th>Start Date</th><th>End Date</th><th>Status</th><th>Manager ID</th></tr>';
-    while ($row = $result->fetch_assoc()) {
-        echo '<tr>';
-        echo '<td>' . $row["RequestID"] . '</td>';
-        echo '<td>' . $row["EmployeeName"] . '</td>';
-        echo '<td>' . $row["RequestDate"] . '</td>';
-        echo '<td>' . $row["StartDate"] . '</td>';
-        echo '<td>' . $row["EndDate"] . '</td>';
-        echo '<td>' . $row["Status"] . '</td>';
-        echo '<td>' . $row["ManagerID"] . '</td>';
-        echo '</tr>';
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
     }
-    echo '</table>';
-    echo '</div>';
-} else {
-    echo "No leave requests found.";
+
+    // Update the status in the database
+    $sql = "UPDATE LeaveRequests SET Status = ? WHERE RequestID = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("si", $status, $requestID);
+
+    if ($stmt->execute()) {
+        echo "Status updated successfully.";
+    } else {
+        echo "Error updating status: " . $conn->error;
+    }
+
+    $stmt->close();
+    $conn->close();
 }
-
-$conn->close();
 ?>
-
-
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -282,8 +272,84 @@ $conn->close();
             <!-- END BREADCRUMB-->
 
             <div id="leave_requests_div">
-    <!-- Leave requests will be displayed here -->
-    </div>
+    <?php
+    
+
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    }
+
+    $sql = "SELECT lr.RequestID, lr.EmployeeID, lr.RequestDate, lr.StartDate, lr.EndDate, lr.Status, lr.ManagerID, e.FirstName, e.LastName
+            FROM LeaveRequests lr
+            INNER JOIN Employees e ON lr.EmployeeID = e.EmployeeID";
+    $result = $conn->query($sql);
+
+    if ($result->num_rows > 0) {
+        // Output data of each row
+        echo '<table border="1">';
+        echo '<thead><tr><th>Request ID</th><th>Employee Name</th><th>Request Date</th><th>Start Date</th><th>End Date</th><th>Status</th><th>Manager ID</th><th>Action</th></tr></thead>';
+        echo '<tbody>';
+        while ($row = $result->fetch_assoc()) {
+            $employeeName = $row["FirstName"] . ' ' . $row["LastName"];
+            echo '<tr>';
+            echo '<td>' . $row["RequestID"] . '</td>';
+            echo '<td>' . $employeeName . '</td>';
+            echo '<td>' . $row["RequestDate"] . '</td>';
+            echo '<td>' . $row["StartDate"] . '</td>';
+            echo '<td>' . $row["EndDate"] . '</td>';
+            echo '<td>' . $row["Status"] . '</td>';
+            echo '<td>' . $row["ManagerID"] . '</td>';
+            echo '<td>';
+            // Approve form
+            echo '<form method="post">';
+            echo '<input type="hidden" name="request_id" value="' . $row["RequestID"] . '">';
+            echo '<input type="hidden" name="status" value="Approved">';
+            echo '<button type="submit" name="action" value="approve">Approve</button>';
+            echo '</form>';
+            // Reject form
+            echo '<form  method="post">';
+            echo '<input type="hidden" name="request_id" value="' . $row["RequestID"] . '">';
+            echo '<input type="hidden" name="status" value="Rejected">';
+            echo '<button type="submit" name="action" value="reject">Reject</button>';
+            echo '</form>';
+            echo '</td>';
+            echo '</tr>';
+        }
+        echo '</tbody>';
+        echo '</table>';
+    } else {
+        echo "No leave requests found.";
+    }
+
+    $conn->close();
+    ?>
+</div>
+
+<style>
+    #leave_requests_div {
+        margin-top: 20px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th, td {
+        border: 1px solid #dddddd;
+        padding: 8px;
+        text-align: left;
+    }
+
+    th {
+        background-color: #f2f2f2;
+    }
+
+    tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+</style>
+            </div>
 
         </div>
 
