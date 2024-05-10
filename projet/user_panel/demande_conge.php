@@ -1,41 +1,69 @@
 <?php
-
-
-// Include config file
+session_start();
 include 'classes/_leaverequest.php';
 include 'config.php';
 
 $conn = new mysqli(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_DATABASE);
 
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+// Check session
+if (isset($_SESSION['email'])) {
+
+    // get employee name from session variable
+    $email = $_SESSION['email'];
+
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    }
+
+    // get employee from db using email
+    $sql = "SELECT * FROM employees WHERE Email = '$email'";
+    $result = $conn->query($sql);
+    $row = $result->fetch_assoc();
+    $employee = $row['Name'];
+
+    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+        $employeeID = $row['EmployeeID'];
+
+        // Get current date
+        $requestDate = date("Y-m-d");
+
+        // Set other form data
+        $startDate = $_POST['start_date'];
+        $endDate = $_POST['end_date'];
+        $status = 'Pending';
+        $managerID = null;
+
+        // Create a new request object
+        $request = new LeaveRequest($employeeID, $requestDate, $startDate, $endDate, $status, null, $managerID);
+
+        // Insert the request
+        $request->insert($conn);
+    }
+
+    // logout
+    if (isset($_GET['logout'])) {
+        // Unset all session variables
+        $_SESSION = array();
+
+        // Destroy the session
+        session_destroy();
+
+        // Redirect to the login page
+        header("Location: ../login.php");
+        exit();
+    }
+
+    // Close connection
+    $conn->close();
 }
+else {
+    header("Location: ../login.php");
+    exit();
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Get employee ID from session variable
-    $employeeID = 1;
-
-    // Get current date
-    $requestDate = date("Y-m-d");
-
-    // Set other form data
-    $startDate = $_POST['start_date'];
-    $endDate = $_POST['end_date'];
-    $status = 'Pending';
-    $managerID = null;
-
-    // Create a new request object
-    $request = new Request($employeeID, $requestDate, $startDate, $endDate, $status, $managerID);
-
-
-    // Insert the request
-    $request->insert($conn);
 }
-
-
-// Close connection
-$conn->close();
 ?>
+
+
 
 
 <!DOCTYPE html>
@@ -90,8 +118,21 @@ $conn->close();
                     <div class="image img-cir img-120">
                         <img src="images/icon/avatar-big-01.jpg" alt="John Doe" />
                     </div>
-                    <h4 class="name">john doe</h4>
-                    <a href="#">Sign out</a>
+                    <h4 class="name"><?php 
+                        echo $employee;
+                        // show employee name in console
+                        echo '<script>';
+                        echo 'console.log("Employee: ' . $employee . '");';
+                        echo '</script>';
+                        
+                    ?></h4>
+                    <a class="dropdown-item preview-item" href="?logout=true">
+                        <i class="zmdi zmdi-power"></i>Logout</a>
+                    <div class="preview-thumbnail">
+                        <div class="preview-icon bg-dark rounded-circle">
+                            <i class="mdi mdi-logout text-danger"></i>
+                        </div>
+                    </div>
                 </div>
                 <nav class="navbar-sidebar2">
                         <ul class="list-unstyled navbar__list">
@@ -205,7 +246,9 @@ $conn->close();
                             <img src="images/icon/avatar-big-01.jpg" alt="John Doe" />
                         </div>
                         <h4 class="name">john doe</h4>
-                        <a href="#">Sign out</a>
+                        <form method="post" action="">
+    <button type="submit" name="logout">Logout</button>
+</form>
                     </div>
                     <nav class="navbar-sidebar2">
                         <ul class="list-unstyled navbar__list">

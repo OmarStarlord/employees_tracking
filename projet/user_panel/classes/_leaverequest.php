@@ -1,7 +1,6 @@
 <?php
 
 class Request {
-    private $requestID;
     private $employeeID;
     private $requestDate;
     private $startDate;
@@ -34,7 +33,7 @@ class Request {
     public function update($conn) {
         $sql = "UPDATE leaverequests SET EmployeeID = '$this->employeeID', RequestDate = '$this->requestDate', 
                 StartDate = '$this->startDate', EndDate = '$this->endDate', Status = '$this->status', ManagerID = '$this->managerID' 
-                WHERE RequestID = $this->requestID";
+                WHERE RequestID = requestID";
         if ($conn->query($sql) === true) {
             echo "Record updated successfully";
         } else {
@@ -44,7 +43,7 @@ class Request {
 
     // Delete function
     public function delete($conn) {
-        $sql = "DELETE FROM leaverequests WHERE RequestID = $this->requestID";
+        $sql = "DELETE FROM leaverequests WHERE RequestID = requestID";
         if ($conn->query($sql) === true) {
             echo "Record deleted successfully";
         } else {

@@ -1,9 +1,15 @@
 <?php
+
+session_start();
+
 require_once 'config.php';
 include 'classes/_evaluation.php';
 
 $conn = new mysqli(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_DATABASE);
+if (isset($_SESSION['email'])) {
 
+    // get employee name from session variable
+    $email = $_SESSION['email'];
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $employee_id = $_POST['employee_id'];
     $evaluation_date = $_POST['evaluation_date'];
@@ -32,6 +38,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // No file uploaded or error occurred during upload
         echo "Error uploading file. Please try again.";
     }
+}
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['logout'])) {
+        session_destroy();
+        header("Location: ../login.php");
+        exit();
+    }
+
+}
+
+else {
+    header("Location: ../login.php");
+    exit();
+
 }
 ?>
 
@@ -91,7 +110,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         <img src="images/icon/avatar-big-01.jpg" alt="John Doe" />
                     </div>
                     <h4 class="name">john doe</h4>
-                    <a href="#">Sign out</a>
+                    <form method="post" action="">
+    <button type="submit" name="logout">Logout</button>
+</form>
                 </div>
                 <nav class="navbar-sidebar2">
                     <ul class="list-unstyled navbar__list">
@@ -210,7 +231,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             <img src="images/icon/avatar-big-01.jpg" alt="John Doe" />
                         </div>
                         <h4 class="name">john doe</h4>
-                        <a href="#">Sign out</a>
+                        <form method="post" action="">
+    <button type="submit" name="logout">Logout</button>
+</form>
                     </div>
                     <nav class="navbar-sidebar2">
                         <ul class="list-unstyled navbar__list">

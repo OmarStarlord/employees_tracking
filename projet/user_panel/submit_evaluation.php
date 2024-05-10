@@ -111,7 +111,9 @@ $conn->close();
                         <img src="images/icon/avatar-big-01.jpg" alt="John Doe" />
                     </div>
                     <h4 class="name">john doe</h4>
-                    <a href="#">Sign out</a>
+                    <form method="post" action="">
+    <button type="submit" name="logout">Logout</button>
+</form>
                 </div>
                 <nav class="navbar-sidebar2">
                         <ul class="list-unstyled navbar__list">
@@ -187,16 +189,16 @@ $conn->close();
                             <img src="images/icon/avatar-big-01.jpg" alt="John Doe" />
                         </div>
                         <h4 class="name">john doe</h4>
-                        <a href="#">Sign out</a>
+                        <form method="post" action="">
+    <button type="submit" name="logout">Logout</button>
+</form>
                     </div>
                     <nav class="navbar-sidebar2">
                         <ul class="list-unstyled navbar__list">
                             <li class="active has-sub">
-                                <a class="js-arrow" href="#">
+                                <a  href="index.php">
                                     <i class="fas fa-tachometer-alt"></i>Dashboard
-                                    <span class="arrow">
-                                        <i class="fas fa-angle-down"></i>
-                                    </span>
+                                    
                                 </a>
                                 
                             </li>

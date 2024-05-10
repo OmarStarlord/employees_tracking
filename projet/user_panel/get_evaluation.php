@@ -8,7 +8,10 @@ $conn = new mysqli(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_DATABASE);
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
+if (isset($_SESSION['email'])) {
 
+    // get employee name from session variable
+    $email = $_SESSION['email'];
 // Initialize variables
 $employeeID = 1;
 $downloadLink = '';
@@ -61,6 +64,15 @@ $conn->close();
 
 // Output the download link
 echo $downloadLink;
+
+
+}
+else {
+    header("Location: ../login.php");
+    exit();
+
+}
+?>
 ?>
 
 <!DOCTYPE html>
@@ -116,7 +128,9 @@ echo $downloadLink;
                         <img src="images/icon/avatar-big-01.jpg" alt="John Doe" />
                     </div>
                     <h4 class="name">john doe</h4>
-                    <a href="#">Sign out</a>
+                    <form method="post" action="">
+    <button type="submit" name="logout">Logout</button>
+</form>
                 </div>
                 <nav class="navbar-sidebar2">
                         <ul class="list-unstyled navbar__list">
@@ -192,7 +206,9 @@ echo $downloadLink;
                     <div class="account2">
                        
                         <h4 class="name">john doe</h4>
-                        <a href="#">Sign out</a>
+                        <form method="post" action="">
+    <button type="submit" name="logout">Logout</button>
+</form>
                     </div>
                     <nav class="navbar-sidebar2">
                         <ul class="list-unstyled navbar__list">

@@ -3,6 +3,11 @@ session_start();
 
 include 'config.php';
 
+
+if (isset($_SESSION['email'])) {
+
+    // get employee name from session variable
+    $email = $_SESSION['email'];
 $message = '';
 
 // Check if the form is submitted
@@ -37,6 +42,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Close the statement and the database connection
     $stmt->close();
     $conn->close();
+}
+}
+else {
+    header("Location: ../login.php");
+    exit();
+
 }
 
 ?>
@@ -125,7 +136,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         <img src="images/icon/avatar-big-01.jpg" alt="John Doe" />
                     </div>
                     <h4 class="name">john doe</h4>
-                    <a href="#">Sign out</a>
+                    <form method="post" action="">
+    <button type="submit" name="logout">Logout</button>
+</form>
                 </div>
                 <nav class="navbar-sidebar2">
                         <ul class="list-unstyled navbar__list">
@@ -260,7 +273,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             <img src="images/icon/avatar-big-01.jpg" alt="John Doe" />
                         </div>
                         <h4 class="name">john doe</h4>
-                        <a href="#">Sign out</a>
+                        <form method="post" action="">
+    <button type="submit" name="logout">Logout</button>
+</form>
                     </div>
                     <nav class="navbar-sidebar2">
                         <ul class="list-unstyled navbar__list">

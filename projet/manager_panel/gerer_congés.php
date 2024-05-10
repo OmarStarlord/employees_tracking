@@ -1,7 +1,12 @@
 <?php
+session_start();
 
 include 'config.php';
 $conn = new mysqli(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_DATABASE);
+if (isset($_SESSION['email'])) {
+
+    // get employee name from session variable
+    $email = $_SESSION['email'];
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Retrieve data from the form
@@ -27,6 +32,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     $stmt->close();
     $conn->close();
+}
+
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['logout'])) {
+        session_destroy();
+        header("Location: ../login.php");
+        exit();
+    }
+
+}
+else {
+    header("Location: ../login.php");
+    exit();
+
 }
 ?>
 
@@ -83,7 +101,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         <img src="images/icon/avatar-big-01.jpg" alt="John Doe" />
                     </div>
                     <h4 class="name">john doe</h4>
-                    <a href="#">Sign out</a>
+                    <form method="post" action="">
+    <button type="submit" name="logout">Logout</button>
+</form>
                 </div>
                 <nav class="navbar-sidebar2">
                     <ul class="list-unstyled navbar__list">
@@ -202,7 +222,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             <img src="images/icon/avatar-big-01.jpg" alt="John Doe" />
                         </div>
                         <h4 class="name">john doe</h4>
-                        <a href="#">Sign out</a>
+                        <form method="post" action="">
+    <button type="submit" name="logout">Logout</button>
+</form>
                     </div>
                     <nav class="navbar-sidebar2">
                         <ul class="list-unstyled navbar__list">

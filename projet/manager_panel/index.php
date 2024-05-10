@@ -1,25 +1,38 @@
 <?php
+session_start(); // Start session at the beginning
 
 include 'config.php';
-
 $conn = new mysqli(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_DATABASE);
 
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+if (isset($_SESSION['email'])) {
+    // get employee name from session variable
+    $email = $_SESSION['email'];
+
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    }
+
+    function getCount($conn, $table)
+    {
+        $sql = "SELECT COUNT(*) as count FROM $table";
+        $result = $conn->query($sql);
+        $row = $result->fetch_assoc();
+        return $row['count'];
+    }
+
+    $employees = getCount($conn, 'employees');
+    $leave_requests = getCount($conn, 'leaverequests');
+    $evaluations = getCount($conn, 'performanceevaluations');
+
+    if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['logout'])) {
+        session_destroy();
+        header("Location: ../login.php");
+        exit();
+    }
+} else {
+    header("Location: ../login.php");
+    exit();
 }
-
-function getCount($conn, $table)
-{
-    $sql = "SELECT COUNT(*) as count FROM $table";
-    $result = $conn->query($sql);
-    $row = $result->fetch_assoc();
-    return $row['count'];
-}
-
-$employees = getCount($conn, 'employees');
-$leave_requests = getCount($conn, 'leaverequests');
-$evaluations = getCount($conn, 'performanceevaluations');
-
 ?>
 
 <!DOCTYPE html>
@@ -75,7 +88,9 @@ $evaluations = getCount($conn, 'performanceevaluations');
                         <img src="images/icon/avatar-big-01.jpg" alt="John Doe" />
                     </div>
                     <h4 class="name">john doe</h4>
-                    <a href="#">Sign out</a>
+                    <form method="post" action="">
+                        <button type="submit" name="logout">Logout</button>
+                    </form>
                 </div>
                 <nav class="navbar-sidebar2">
                     <ul class="list-unstyled navbar__list">
@@ -123,7 +138,7 @@ $evaluations = getCount($conn, 'performanceevaluations');
                                 </a>
                             </div>
                             <div class="header-button2">
-                                
+
                                 <div class="header-button-item mr-0 js-sidebar-btn">
                                     <i class="zmdi zmdi-menu"></i>
                                 </div>
@@ -137,9 +152,9 @@ $evaluations = getCount($conn, 'performanceevaluations');
                                             <a href="#">
                                                 <i class="zmdi zmdi-settings"></i>Setting</a>
                                         </div>
-                                        
+
                                     </div>
-                                    
+
                                 </div>
                             </div>
                         </div>
@@ -158,7 +173,9 @@ $evaluations = getCount($conn, 'performanceevaluations');
                             <img src="images/icon/avatar-big-01.jpg" alt="John Doe" />
                         </div>
                         <h4 class="name">john doe</h4>
-                        <a href="#">Sign out</a>
+                        <form method="post" action="">
+                            <button type="submit" name="logout">Logout</button>
+                        </form>
                     </div>
                     <nav class="navbar-sidebar2">
                         <ul class="list-unstyled navbar__list">
