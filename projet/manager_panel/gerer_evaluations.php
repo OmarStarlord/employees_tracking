@@ -309,46 +309,44 @@ if (isset($_SESSION['email'])) {
                         <th>Actions</th>
                     </tr>
                     <?php
-                    // Include config and establish database connection here
-                    
-                    // Fetch evaluations data from the database
-                    $sql = "SELECT pe.EvaluationID, pe.EmployeeID, pe.EvaluationDate, pe.EvaluationForm, pe.Result, e.FirstName, e.LastName
-                FROM performanceevaluations pe
-                INNER JOIN Employees e ON pe.EmployeeID = e.EmployeeID";
-                    $result = $conn->query($sql);
 
-                    if ($result->num_rows > 0) {
-                        while ($row = $result->fetch_assoc()) {
-                            $employeeName = $row["FirstName"] . ' ' . $row["LastName"];
-                            echo '<tr>';
-                            echo '<td>' . $row["EvaluationID"] . '</td>';
-                            echo '<td>' . $employeeName . '</td>';
-                            echo '<td>' . $row["EvaluationDate"] . '</td>';
-                            // Here, you can create a link to download the evaluation form
-                    
+$sql = "SELECT pe.EvaluationID, pe.EmployeeID, pe.EvaluationDate, pe.EvaluationForm, pe.Result, e.FirstName, e.LastName
+        FROM performanceevaluations pe
+        INNER JOIN Employees e ON pe.EmployeeID = e.EmployeeID";
+$stmt = sqlsrv_query($conn, $sql);
 
-                            $evaluationForm = $row["EvaluationForm"];
-                            $fileName = basename($evaluationForm); // Extract the file name from the path
-                    
-                            // Display a link to download the file
-                            echo '<td><a href="' . $evaluationForm . '" download="' . $fileName . '">Download Evaluation Form</a></td>';
-                            echo '<td>' . $row["Result"] . '</td>';
-                            echo '<td>';
-                            // Add a form to submit the result update
-                            echo '<form method="POST">';
-                            echo '<input type="hidden" name="evaluation_id" value="' . $row["EvaluationID"] . '">';
-                            echo '<input type="text" name="result" placeholder="Enter Percentage Achieved">';
-                            echo '<input type="submit" value="Submit">';
-                            echo '</form>';
-                            echo '</td>';
-                            echo '</tr>';
-                        }
-                    } else {
-                        echo '<tr><td colspan="6">No evaluations found.</td></tr>';
-                    }
+if ($stmt !== false) {
+    while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
+        $employeeName = $row["FirstName"] . ' ' . $row["LastName"];
+        echo '<tr>';
+        echo '<td>' . $row["EvaluationID"] . '</td>';
+        echo '<td>' . $employeeName . '</td>';
+        echo '<td>' . $row["EvaluationDate"]->format('Y-m-d') . '</td>';
 
-                    // Close database connection here
-                    ?>
+        // Here, you can create a link to download the evaluation form
+        $evaluationForm = $row["EvaluationForm"];
+        $fileName = basename($evaluationForm); // Extract the file name from the path
+
+        // Display a link to download the file
+        echo '<td><a href="' . $evaluationForm . '" download="' . $fileName . '">Download Evaluation Form</a></td>';
+        echo '<td>' . $row["Result"] . '</td>';
+        echo '<td>';
+        // Add a form to submit the result update
+        echo '<form method="POST">';
+        echo '<input type="hidden" name="evaluation_id" value="' . $row["EvaluationID"] . '">';
+        echo '<input type="text" name="result" placeholder="Enter Percentage Achieved">';
+        echo '<input type="submit" value="Submit">';
+        echo '</form>';
+        echo '</td>';
+        echo '</tr>';
+    }
+    sqlsrv_free_stmt($stmt);
+} else {
+    echo '<tr><td colspan="6">No evaluations found.</td></tr>';
+}
+
+// Close database connection here
+?>
                 </table>
             </div>
 

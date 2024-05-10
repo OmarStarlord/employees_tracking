@@ -38,6 +38,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 header("Location: manager_panel/index.php");
                 exit();
             } else {
+                $_SESSION['email'] = $email;
                 header("Location: user_panel/index.php");
                 exit();
             }

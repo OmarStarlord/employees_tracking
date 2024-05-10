@@ -9,10 +9,7 @@ if (isset($_SESSION['email'])) {
     // Get employee email from session variable
     $email = $_SESSION['email'];
 
-    if ($conn->connect_error) {
-        die("Connection failed: " . $conn->connect_error);
-    }
-
+    
     // Get employee from db using email
     $sql = "SELECT * FROM Employees WHERE Email = ?";
     $params = array($email);
@@ -28,6 +25,10 @@ if (isset($_SESSION['email'])) {
     $row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
     $employeeID = $row['EmployeeID'];
 
+    // Get employee name
+    $employee = $row['FirstName'] . " " . $row['LastName'];
+    
+
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Get current date
         $requestDate = date("Y-m-d");
@@ -39,7 +40,7 @@ if (isset($_SESSION['email'])) {
         $managerID = null; // Assuming manager ID is not yet assigned
 
         // Create a new request object
-        $request = new LeaveRequest($employeeID, $requestDate, $startDate, $endDate, $status, null, $managerID);
+        $request = new LeaveRequest($employeeID, $requestDate, $startDate, $endDate, $status, $managerID);
 
         // Insert the request
         $request->insert($conn);
@@ -123,15 +124,11 @@ if (isset($_SESSION['email'])) {
                         <img src="images/icon/avatar-big-01.jpg" alt="John Doe" />
                     </div>
                     <h4 class="name"><?php 
-                        echo $employee;
-                        // show employee name in console
-                        echo '<script>';
-                        echo 'console.log("Employee: ' . $employee . '");';
-                        echo '</script>';
-                        
+                        echo $employee;                        
                     ?></h4>
-                    <a class="dropdown-item preview-item" href="?logout=true">
-                        <i class="zmdi zmdi-power"></i>Logout</a>
+                    <form method="post" action="">
+                            <button type="submit" name="logout">Logout</button>
+                        </form>
                     <div class="preview-thumbnail">
                         <div class="preview-icon bg-dark rounded-circle">
                             <i class="mdi mdi-logout text-danger"></i>
@@ -151,13 +148,17 @@ if (isset($_SESSION['email'])) {
                                     <i class="fas fa-chart-bar"></i>Telecharger Evaluation</a>
                             </li>
                             <li>
-                                <a href="submit_evalution.php">
+                                <a href="submit_evaluation.php">
                                     <i class="fas fa-shopping-basket"></i>Soumettre Evaluation</a>
                             </li>
                             <li>
                                 <a href="demande_conge.php">
                                     <i class="fas fa-shopping-basket"></i>Demande Congé</a>
                             </li>
+                            <li>
+                            <a href="valider_taches.php">
+                                <i class="fas fa-shopping-basket"></i>Valider Taches</a>
+                        </li>
                             
                             
                         </ul>

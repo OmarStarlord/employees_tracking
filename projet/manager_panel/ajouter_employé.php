@@ -4,10 +4,14 @@ session_start();
 require_once 'config.php';
 include 'classes/_employe.php';
 
+
+
 if (isset($_SESSION['email'])) {
 
     // Get employee email from session variable
     $email = $_SESSION['email'];
+    // Connect to the database
+    $conn = sqlsrv_connect($serverName, $connectionOptions);
 
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $first_name = $_POST['first_name'];
@@ -280,23 +284,24 @@ if (isset($_SESSION['email'])) {
                 <select id="department" name="department" required
                     style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; margin-bottom: 15px;">
                     <?php
-                    // Include the database configuration file
-                    include 'config.php';
+// Include the database configuration file
+include 'config.php';
 
-                    // Fetch department data from the database
-                    $sql = "SELECT * FROM Departments";
-                    $result = $conn->query($sql);
+// Fetch department data from the database
+$sql = "SELECT * FROM Departments";
+$stmt = sqlsrv_query($conn, $sql);
 
-                    // Check if there are departments in the database
-                    if ($result->num_rows > 0) {
-                        // Output each department as an option
-                        while ($row = $result->fetch_assoc()) {
-                            echo "<option value='" . $row['DepartmentID'] . "'>" . $row['DepartmentName'] . "</option>";
-                        }
-                    } else {
-                        echo "<option value=''>No departments found</option>";
-                    }
-                    ?>
+// Check if there are departments in the database
+if ($stmt !== false) {
+    // Output each department as an option
+    while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
+        echo "<option value='" . $row['DepartmentID'] . "'>" . $row['DepartmentName'] . "</option>";
+    }
+    sqlsrv_free_stmt($stmt);
+} else {
+    echo "<option value=''>No departments found</option>";
+}
+?>
                 </select>
 
                 <input type="submit" value="Add Employee"

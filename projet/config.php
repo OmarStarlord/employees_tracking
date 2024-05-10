@@ -1,9 +1,9 @@
 <?php
 // Database configuration
-$serverName = "OMAR-LAPTOP\\SQLEXPRESS"; // Server name
-$databaseName = "projet_final"; // Database name
-$username = "starlord"; // Your SQL Server username
-$password = "123456789"; // Your SQL Server password
+$serverName = "OMAR-LAPTOP\\SQLEXPRESS"; 
+$databaseName = "projet_final";
+$username = "starlord";
+$password = "123456789";
 
 // Connection options
 $connectionOptions = array(

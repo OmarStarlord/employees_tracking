@@ -6,7 +6,7 @@ require_once 'config.php';
 include 'classes/_task.php';
 
 
- 
+
 if (isset($_SESSION['email'])) {
 
     // Get employee email from session variable
@@ -17,7 +17,7 @@ if (isset($_SESSION['email'])) {
         $taskName = $_POST['task_name'];
         $taskDescription = $_POST['description'];
         $taskStatus = "Not Started";
-        $taskPriority = $_POST['task_priority']; 
+        $taskPriority = $_POST['task_priority'];
         $taskDueDate = $_POST['deadline'];
         $employeeID = $_POST['employee_id'];
 
@@ -95,8 +95,8 @@ if (isset($_SESSION['email'])) {
                     </div>
                     <h4 class="name">john doe</h4>
                     <form method="post" action="">
-    <button type="submit" name="logout">Logout</button>
-</form>
+                        <button type="submit" name="logout">Logout</button>
+                    </form>
                 </div>
                 <nav class="navbar-sidebar2">
                     <ul class="list-unstyled navbar__list">
@@ -214,8 +214,8 @@ if (isset($_SESSION['email'])) {
                         </div>
                         <h4 class="name">john doe</h4>
                         <form method="post" action="">
-    <button type="submit" name="logout">Logout</button>
-</form>
+                            <button type="submit" name="logout">Logout</button>
+                        </form>
                     </div>
                     <nav class="navbar-sidebar2">
                         <ul class="list-unstyled navbar__list">
@@ -270,29 +270,40 @@ if (isset($_SESSION['email'])) {
             <!-- END BREADCRUMB-->
 
             <!-- Assigner Evaluation -->
-            <form method="POST" style="max-width: 400px; margin: auto; padding: 20px; background-color: #f9f9f9; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+            <form method="POST"
+                style="max-width: 400px; margin: auto; padding: 20px; background-color: #f9f9f9; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
                 <h2 style="text-align: center; margin-bottom: 20px;">Créer une nouvelle tâche</h2>
 
                 <label for="task_name" style="display: block; margin-bottom: 5px;">Nom de la tâche:</label>
-                <input type="text" id="task_name" name="task_name" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; margin-bottom: 15px;">
+                <input type="text" id="task_name" name="task_name" required
+                    style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; margin-bottom: 15px;">
 
                 <label for="employee_id" style="display: block; margin-bottom: 5px;">Employé:</label>
-                <select id="employee_id" name="employee_id" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; margin-bottom: 15px;">
+                <select id="employee_id" name="employee_id" required
+                    style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; margin-bottom: 15px;">
                     <?php
-                    
                     $sql = "SELECT EmployeeID, CONCAT(FirstName, ' ', LastName) AS FullName FROM Employees";
-                    $result = mysqli_query($conn, $sql);
-                    while ($row = mysqli_fetch_assoc($result)) {
-                        echo "<option value='" . $row['EmployeeID'] . "'>" . $row['FullName'] . "</option>";
+                    $stmt = sqlsrv_query($conn, $sql);
+
+                    if ($stmt !== false) {
+                        while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
+                            echo "<option value='" . $row['EmployeeID'] . "'>" . $row['FullName'] . "</option>";
+                        }
+                        sqlsrv_free_stmt($stmt);
+                    } else {
+                        echo "<option value=''>No employees found</option>";
                     }
                     ?>
+
                 </select>
 
                 <label for="deadline" style="display: block; margin-bottom: 5px;">Date limite:</label>
-                <input type="date" id="deadline" name="deadline" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; margin-bottom: 15px;">
+                <input type="date" id="deadline" name="deadline" required
+                    style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; margin-bottom: 15px;">
 
                 <label for="task_priority" style="display: block; margin-bottom: 5px;">Priorité:</label>
-                <select id="task_priority" name="task_priority" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; margin-bottom: 15px;">
+                <select id="task_priority" name="task_priority" required
+                    style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; margin-bottom: 15px;">
                     <option value="Low">Low</option>
                     <option value="Medium">Medium</option>
                     <option value="High">High</option>
@@ -300,9 +311,11 @@ if (isset($_SESSION['email'])) {
 
 
                 <label for="description" style="display: block; margin-bottom: 5px;">Description:</label>
-                <textarea id="description" name="description" rows="4" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; margin-bottom: 15px;"></textarea>
+                <textarea id="description" name="description" rows="4" required
+                    style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; margin-bottom: 15px;"></textarea>
 
-                <input type="submit" value="Créer la tâche" style="width: 100%; padding: 10px; border: none; border-radius: 5px; background-color: #007bff; color: #fff; cursor: pointer; transition: background-color 0.3s ease;">
+                <input type="submit" value="Créer la tâche"
+                    style="width: 100%; padding: 10px; border: none; border-radius: 5px; background-color: #007bff; color: #fff; cursor: pointer; transition: background-color 0.3s ease;">
             </form>
             <!-- END Assigner Evaluation -->
         </div>

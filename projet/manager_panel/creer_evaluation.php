@@ -316,13 +316,19 @@ if (isset($_SESSION['email'])) {
                 <select id="employee_id" name="employee_id" required
                     style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; margin-bottom: 15px;">
                     <?php
-                    // Assuming $conn is your database connection
-                    $sql = "SELECT EmployeeID, CONCAT(FirstName, ' ', LastName) AS FullName FROM Employees";
-                    $result = mysqli_query($conn, $sql);
-                    while ($row = mysqli_fetch_assoc($result)) {
-                        echo "<option value='" . $row['EmployeeID'] . "'>" . $row['FullName'] . "</option>";
-                    }
-                    ?>
+// Assuming $conn is your database connection
+$sql = "SELECT EmployeeID, CONCAT(FirstName, ' ', LastName) AS FullName FROM Employees";
+$stmt = sqlsrv_query($conn, $sql);
+
+if ($stmt !== false) {
+    while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
+        echo "<option value='" . $row['EmployeeID'] . "'>" . $row['FullName'] . "</option>";
+    }
+    sqlsrv_free_stmt($stmt);
+} else {
+    echo "<option value=''>No employees found</option>";
+}
+?>
                 </select>
 
                 <label for="evaluation_date" style="display: block; margin-bottom: 5px;">Evaluation Date:</label>

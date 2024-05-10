@@ -1,4 +1,6 @@
 <?php
+
+session_start();
 include 'config.php';
 
 
@@ -53,6 +55,20 @@ if (isset($_SESSION['email'])) {
 
     // Output the download link
     echo $downloadLink;
+
+
+    if (isset($_GET['logout'])) {
+        // Unset all session variables
+        $_SESSION = array();
+
+        // Destroy the session
+        session_destroy();
+
+        // Redirect to the login page
+        header("Location: ../login.php");
+        exit();
+    }
+
 
 } else {
     // Redirect to login page if user is not logged in
@@ -119,8 +135,8 @@ sqlsrv_close($conn);
                     </div>
                     <h4 class="name">john doe</h4>
                     <form method="post" action="">
-    <button type="submit" name="logout">Logout</button>
-</form>
+                            <button type="submit" name="logout">Logout</button>
+                        </form>
                 </div>
                 <nav class="navbar-sidebar2">
                         <ul class="list-unstyled navbar__list">
@@ -142,6 +158,10 @@ sqlsrv_close($conn);
                                 <a href="demande_conge.php">
                                     <i class="fas fa-shopping-basket"></i>Demande Congé</a>
                             </li>
+                            <li>
+                            <a href="valider_taches.php">
+                                <i class="fas fa-shopping-basket"></i>Valider Taches</a>
+                        </li>
                             
                             
                         </ul>
@@ -213,7 +233,7 @@ sqlsrv_close($conn);
                                     <i class="fas fa-chart-bar"></i>Telecharger Evaluation</a>
                             </li>
                             <li>
-                                <a href="submit_evalution.php">
+                                <a href="submit_evaluation.php">
                                     <i class="fas fa-shopping-basket"></i>Soumettre Evaluation</a>
                             </li>
                             <li>

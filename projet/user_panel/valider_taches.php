@@ -1,57 +1,69 @@
 <?php
 session_start();
+
+// Include database configuration
 include 'config.php';
 
-$tasksAmount = 0;
-$evaluationsAmount = 0;
+// Redirect if user is not logged in
+if (!isset($_SESSION['email'])) {
+    header("Location: ../login.php");
+    exit();
+}
 
-if (isset($_SESSION['email'])) {
-    // Retrieve user's ID from the database
-    $email = $_SESSION['email'];
-    $sql = "SELECT EmployeeID FROM Employees WHERE Email = ?";
-    $params = array($email);
+// Retrieve user's ID from the database
+$email = $_SESSION['email'];
+$sql = "SELECT * FROM Employees WHERE Email = ?";
+$params = array($email);
+$stmt = sqlsrv_query($conn, $sql, $params);
+
+if ($stmt === false) {
+    die("Error retrieving user data: " . print_r(sqlsrv_errors(), true));
+}
+
+$row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
+$employeeID = $row['EmployeeID'];
+
+// Retrieve tasks for the user
+$sql = "SELECT * FROM Tasks WHERE EmployeeID = ?";
+$params = array($employeeID);
+$stmt = sqlsrv_query($conn, $sql, $params);
+
+if ($stmt === false) {
+    die("Error retrieving tasks: " . print_r(sqlsrv_errors(), true));
+}
+
+$tasks = array();
+while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
+    $tasks[] = $row;
+}
+
+// Handle task submission
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['task_id']) && isset($_POST['completed'])) {
+    $taskID = $_POST['task_id'];
+    $completed = $_POST['completed'];
+
+    // Update task status in the database
+    $sql = "UPDATE Tasks SET TaskStatus = ? WHERE TaskID = ?";
+    $params = array($completed, $taskID);
     $stmt = sqlsrv_query($conn, $sql, $params);
 
     if ($stmt === false) {
-        die("Error retrieving user data: " . print_r(sqlsrv_errors(), true));
-    }
-
-    $row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
-    $employeeID = $row['EmployeeID'];
-
-    // Retrieve tasks count for the user
-    $sql = "SELECT COUNT(*) AS TaskCount FROM Tasks WHERE EmployeeID = ?";
-    $params = array($employeeID);
-    $stmt = sqlsrv_query($conn, $sql, $params);
-
-    if ($stmt === false) {
-        die("Error retrieving tasks count: " . print_r(sqlsrv_errors(), true));
-    }
-
-    $row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
-    $tasksAmount = $row['TaskCount'];
-
-    // Retrieve evaluations count for the user
-    $sql = "SELECT COUNT(*) AS EvaluationCount FROM PerformanceEvaluations WHERE EmployeeID = ?";
-    $params = array($employeeID);
-    $stmt = sqlsrv_query($conn, $sql, $params);
-
-    if ($stmt === false) {
-        die("Error retrieving evaluations count: " . print_r(sqlsrv_errors(), true));
-    }
-
-    $row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
-    $evaluationsAmount = $row['EvaluationCount'];
-
-    // Handle logout
-    if (isset($_POST['logout'])) {
-        session_destroy();
-        header("Location: ../login.php");
+        die("Error updating task: " . print_r(sqlsrv_errors(), true));
+    } else {
+        echo "Task updated successfully!";
+        // Redirect to prevent form resubmission
+        header("Location: index.php");
         exit();
     }
 }
-?>
 
+// Handle logout
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['logout'])) {
+    session_destroy();
+    header("Location: ../login.php");
+    exit();
+}
+?>
 
 
 <!DOCTYPE html>
@@ -90,12 +102,6 @@ if (isset($_SESSION['email'])) {
     <!-- Main CSS-->
     <link href="css/theme.css" rel="stylesheet" media="all">
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Include Chart.js library -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
-    <!-- Include jQuery library -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
 </head>
 
 <body class="animsition">
@@ -120,7 +126,7 @@ if (isset($_SESSION['email'])) {
                 <nav class="navbar-sidebar2">
                     <ul class="list-unstyled navbar__list">
                         <li class="active has-sub">
-                            <a class="js-arrow" href="index.php">
+                            <a href="index.php">
                                 <i class="fas fa-tachometer-alt"></i>Dashboard
 
                             </a>
@@ -136,10 +142,6 @@ if (isset($_SESSION['email'])) {
                         <li>
                             <a href="demande_conge.php">
                                 <i class="fas fa-shopping-basket"></i>Demande Congé</a>
-                        </li>
-                        <li>
-                            <a href="valider_taches.php">
-                                <i class="fas fa-shopping-basket"></i>Valider Taches</a>
                         </li>
 
 
@@ -204,15 +206,12 @@ if (isset($_SESSION['email'])) {
                             <li class="active has-sub">
                                 <a class="js-arrow" href="index.php">
                                     <i class="fas fa-tachometer-alt"></i>Dashboard
-                                    <span class="arrow">
-                                        <i class="fas fa-angle-down"></i>
-                                    </span>
+
                                 </a>
                             </li>
                             <li>
                                 <a href="get_evaluation.php">
                                     <i class="fas fa-chart-bar"></i>Telecharger Evaluation</a>
-                                <span class="inbox-num">3</span>
                             </li>
                             <li>
                                 <a href="submit_evaluation.php">
@@ -221,6 +220,10 @@ if (isset($_SESSION['email'])) {
                             <li>
                                 <a href="demande_conge.php">
                                     <i class="fas fa-shopping-basket"></i>Demande Congé</a>
+                            </li>
+                            <li>
+                            <a href="valider_taches.php">
+                                <i class="fas fa-shopping-basket"></i>Valider Taches</a>
                             </li>
 
 
@@ -231,164 +234,114 @@ if (isset($_SESSION['email'])) {
             <!-- END HEADER DESKTOP-->
 
             <!-- BREADCRUMB-->
-            <section class="au-breadcrumb m-t-75">
-                <div class="section__content section__content--p30">
-                    <div class="container-fluid">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="au-breadcrumb-content">
-                                    <div class="au-breadcrumb-left">
-                                        <span class="au-breadcrumb-span">You are here:</span>
-                                        <ul class="list-unstyled list-inline au-breadcrumb__list">
-                                            <li class="list-inline-item active">
-                                                <a href="#">Home</a>
-                                            </li>
-                                            <li class="list-inline-item seprate">
-                                                <span>/</span>
-                                            </li>
-                                            <li class="list-inline-item">Dashboard</li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-            </section>
-            <!-- END BREADCRUMB-->
-
-            <!-- STATISTIC-->
-            <section class="statistic">
-                <div class="section__content section__content--p30">
-                    <div class="container-fluid">
-                        <div class="row">
-                            <div class="col-md-6 col-lg-3">
-                                <div class="statistic__item">
-                                    <h2 class="number"><?php echo $tasksAmount; ?></h2>
-                                    <span class="desc">Taches</span>
-                                    <div class="icon">
-                                        <i class="zmdi zmdi-account-o"></i>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6 col-lg-3">
-                                <div class="statistic__item">
-                                    <h2 class="number"><?php echo $evaluationsAmount; ?></h2>
-                                    <span class="desc">Evaluations</span>
-                                    <div class="icon">
-                                        <i class="zmdi zmdi-shopping-cart"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- END STATISTIC-->
-
-
-
-            <section class="task-status-section">
-        <div class="section__content section__content--p30">
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-md-6 col-lg-3">
-                        <div class="statistic__item">
-                            <canvas id="task-status-chart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <<div class="page-wrapper">
+                <h1>User Tasks</h1>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Task Name</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($tasks as $task): ?>
+                            <tr>
+                                <td><?php echo $task['TaskName']; ?></td>
+                                <td class="<?php echo $task['TaskStatus'] === 'completed' ? 'completed' : ''; ?>">
+                                    <?php echo $task['TaskStatus'] === 'completed' ? 'Completed' : 'Pending'; ?>
+                                </td>
+                                <td>
+                                    <?php if ($task['TaskStatus'] !== 'completed'): ?>
+                                        <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="POST">
+                                            <input type="hidden" name="task_id" value="<?php echo $task['TaskID']; ?>">
+                                            <input type="hidden" name="completed" value="completed">
+                                            <button type="submit" class="btn-submit">Mark as Completed</button>
+                                        </form>
+                                    <?php else: ?>
+                                        <span class="completed">Completed</span>
+                                    <?php endif; ?>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
         </div>
-    </section>
 
-
-
-    <?php
-    
-
-    // Initialize variables
-    $completedTasks = 0;
-    $incompleteTasks = 0;
-
-    if (isset($_SESSION['email'])) {
-        // Retrieve user's ID from the database
-        $email = $_SESSION['email'];
-        $sql = "SELECT EmployeeID FROM Employees WHERE Email = ?";
-        $params = array($email);
-        $stmt = sqlsrv_query($conn, $sql, $params);
-
-        if ($stmt === false) {
-            die("Error retrieving user data: " . print_r(sqlsrv_errors(), true));
-        }
-
-        $row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
-        $employeeID = $row['EmployeeID'];
-
-        // Retrieve user's tasks
-        $sql = "SELECT * FROM Tasks WHERE EmployeeID = ?";
-        $params = array($employeeID);
-        $stmt = sqlsrv_query($conn, $sql, $params);
-
-        if ($stmt === false) {
-            die("Error retrieving tasks: " . print_r(sqlsrv_errors(), true));
-        }
-
-        // Count completed and incomplete tasks
-        while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
-            if ($row['TaskStatus'] === 'completed') {
-                $completedTasks++;
-            } else {
-                $incompleteTasks++;
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                background-color: #f4f4f4;
+                margin: 0;
+                padding: 0;
             }
-        }
-    }
-    ?>
 
-    <script>
-        $(document).ready(function () {
-            // Retrieve the data for the chart
-            var completedTasks = <?php echo json_encode($completedTasks); ?>;
-            var incompleteTasks = <?php echo json_encode($incompleteTasks); ?>;
+            .page-wrapper {
+                max-width: 800px;
+                margin: 20px auto;
+                padding: 20px;
+                background-color: #fff;
+                border-radius: 8px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            }
 
-            // Get context with jQuery
-            var ctx = $("#task-status-chart");
+            h1 {
+                text-align: center;
+                margin-bottom: 20px;
+            }
 
-            // Pie chart data
-            var data = {
-                labels: ["Completed", "Incomplete"],
-                datasets: [{
-                    data: [completedTasks, incompleteTasks],
-                    backgroundColor: [
-                        '#36A2EB',
-                        '#FFCE56'
-                    ],
-                    hoverBackgroundColor: [
-                        '#36A2EB',
-                        '#FFCE56'
-                    ]
-                }]
-            };
+            table {
+                width: 100%;
+                border-collapse: collapse;
+            }
 
-            // Pie chart options
-            var options = {
-                responsive: true
-            };
+            th,
+            td {
+                border: 1px solid #ddd;
+                padding: 10px;
+                text-align: left;
+            }
 
-            // Create pie chart
-            var myPieChart = new Chart(ctx, {
-                type: 'pie',
-                data: data,
-                options: options
-            });
-        });
-    </script>
+            th {
+                background-color: #f2f2f2;
+            }
 
-            <!-- END PAGE CONTAINER-->
-        </div>
+            tr:nth-child(even) {
+                background-color: #f9f9f9;
+            }
+
+            .completed {
+                color: green;
+            }
+
+            .btn-submit {
+                background-color: #4CAF50;
+                color: white;
+                padding: 10px 20px;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+            }
+
+            .btn-submit:hover {
+                background-color: #45a049;
+            }
+        </style>
+
+
+
+
+
+
+        <!-- END PAGE CONTAINER-->
+
+
+
 
     </div>
-    >
+
+
+
     <!-- Jquery JS-->
     <script src="vendor/jquery-3.2.1.min.js"></script>
     <!-- Bootstrap JS-->
@@ -416,8 +369,6 @@ if (isset($_SESSION['email'])) {
 
     <!-- Main JS-->
     <script src="js/main.js"></script>
-    <script>
-    </script>
 
 </body>
 

@@ -1,6 +1,6 @@
 <?php
 
-class Request {
+class LeaveRequest {
     private $employeeID;
     private $requestDate;
     private $startDate;

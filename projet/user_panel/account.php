@@ -84,37 +84,37 @@ if (isset($_SESSION['email'])) {
 
 <body class="animsition">
     <header class="header-desktop2">
-                <div class="section__content section__content--p30">
-                    <div class="container-fluid">
-                        <div class="header-wrap2">
-                            <div class="logo d-block d-lg-none">
-                                <a href="#">
-                                    <img src="images/icon/logo-white.png" alt="CoolAdmin" />
-                                </a>
-                            </div>
-                            <div class="header-button2">
-                                <div class="header-button-item mr-0 js-sidebar-btn">
-                                    <i class="zmdi zmdi-menu"></i>
+        <div class="section__content section__content--p30">
+            <div class="container-fluid">
+                <div class="header-wrap2">
+                    <div class="logo d-block d-lg-none">
+                        <a href="#">
+                            <img src="images/icon/logo-white.png" alt="CoolAdmin" />
+                        </a>
+                    </div>
+                    <div class="header-button2">
+                        <div class="header-button-item mr-0 js-sidebar-btn">
+                            <i class="zmdi zmdi-menu"></i>
+                        </div>
+                        <div class="setting-menu js-right-sidebar d-none d-lg-block">
+                            <div class="account-dropdown__body">
+                                <div class="account-dropdown__item">
+                                    <a href="account.php">
+                                        <i class="zmdi zmdi-account"></i>Account</a>
                                 </div>
-                                <div class="setting-menu js-right-sidebar d-none d-lg-block">
-                                    <div class="account-dropdown__body">
-                                        <div class="account-dropdown__item">
-                                            <a href="account.php">
-                                                <i class="zmdi zmdi-account"></i>Account</a>
-                                        </div>
-                                        <div class="account-dropdown__item">
-                                            <a href="#">
-                                                <i class="zmdi zmdi-settings"></i>Setting</a>
-                                        </div>
-                                        
-                                    </div>
-                                    
+                                <div class="account-dropdown__item">
+                                    <a href="#">
+                                        <i class="zmdi zmdi-settings"></i>Setting</a>
                                 </div>
+
                             </div>
+
                         </div>
                     </div>
                 </div>
-            </header>
+            </div>
+        </div>
+    </header>
     <div class="page-wrapper">
         <!-- MENU SIDEBAR-->
         <aside class="menu-sidebar2">
@@ -130,33 +130,37 @@ if (isset($_SESSION['email'])) {
                     </div>
                     <h4 class="name">john doe</h4>
                     <form method="post" action="">
-    <button type="submit" name="logout">Logout</button>
-</form>
+                        <button type="submit" name="logout">Logout</button>
+                    </form>
                 </div>
                 <nav class="navbar-sidebar2">
-                        <ul class="list-unstyled navbar__list">
-                            <li class="active has-sub">
-                                <a class="js-arrow" href="index.php">
-                                    <i class="fas fa-tachometer-alt"></i>Dashboard
-                                    
-                                </a>
-                            </li>
-                            <li>
-                                <a href="get_evaluation.php">
-                                    <i class="fas fa-chart-bar"></i>Telecharger Evaluation</a>
-                            </li>
-                            <li>
-                                <a href="submit_evalution.php">
-                                    <i class="fas fa-shopping-basket"></i>Soumettre Evaluation</a>
-                            </li>
-                            <li>
-                                <a href="demande_conge.php">
-                                    <i class="fas fa-shopping-basket"></i>Demande Congé</a>
-                            </li>
-                            
-                            
-                        </ul>
-                    </nav>
+                    <ul class="list-unstyled navbar__list">
+                        <li class="active has-sub">
+                            <a class="js-arrow" href="index.php">
+                                <i class="fas fa-tachometer-alt"></i>Dashboard
+
+                            </a>
+                        </li>
+                        <li>
+                            <a href="get_evaluation.php">
+                                <i class="fas fa-chart-bar"></i>Telecharger Evaluation</a>
+                        </li>
+                        <li>
+                            <a href="submit_evaluation.php">
+                                <i class="fas fa-shopping-basket"></i>Soumettre Evaluation</a>
+                        </li>
+                        <li>
+                            <a href="demande_conge.php">
+                                <i class="fas fa-shopping-basket"></i>Demande Congé</a>
+                        </li>
+                        <li>
+                            <a href="valider_taches.php">
+                                <i class="fas fa-shopping-basket"></i>Valider Taches</a>
+                        </li>
+
+
+                    </ul>
+                </nav>
             </div>
         </aside>
         <!-- END MENU SIDEBAR-->
@@ -267,8 +271,8 @@ if (isset($_SESSION['email'])) {
                         </div>
                         <h4 class="name">john doe</h4>
                         <form method="post" action="">
-    <button type="submit" name="logout">Logout</button>
-</form>
+                            <button type="submit" name="logout">Logout</button>
+                        </form>
                     </div>
                     <nav class="navbar-sidebar2">
                         <ul class="list-unstyled navbar__list">
@@ -333,7 +337,7 @@ if (isset($_SESSION['email'])) {
                                     </li>
                                 </ul>
                             </li>
-                            
+
                         </ul>
                     </nav>
                 </div>
@@ -342,29 +346,29 @@ if (isset($_SESSION['email'])) {
 
             <!-- BREADCRUMB-->
             <h2>Update Employee Information</h2>
-    <?php if (!empty($message)): ?>
-        <p><?php echo $message; ?></p>
-    <?php endif; ?>
-    <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="POST">
-        <div>
-            <label for="employee_id">Employee ID:</label>
-            <input type="text" id="employee_id" name="employee_id" required>
-        </div>
-        <div>
-            <label for="new_email">New Email:</label>
-            <input type="email" id="new_email" name="new_email" required>
-        </div>
-        <div>
-            <label for="new_name">New Name:</label>
-            <input type="text" id="new_name" name="new_name" required>
-        </div>
-        <div>
-            <label for="new_password">New Password:</label>
-            <input type="password" id="new_password" name="new_password" required>
-        </div>
-        <button type="submit">Update</button>
-    </form>
-            
+            <?php if (!empty($message)): ?>
+                <p><?php echo $message; ?></p>
+            <?php endif; ?>
+            <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="POST">
+                <div>
+                    <label for="employee_id">Employee ID:</label>
+                    <input type="text" id="employee_id" name="employee_id" required>
+                </div>
+                <div>
+                    <label for="new_email">New Email:</label>
+                    <input type="email" id="new_email" name="new_email" required>
+                </div>
+                <div>
+                    <label for="new_name">New Name:</label>
+                    <input type="text" id="new_name" name="new_name" required>
+                </div>
+                <div>
+                    <label for="new_password">New Password:</label>
+                    <input type="password" id="new_password" name="new_password" required>
+                </div>
+                <button type="submit">Update</button>
+            </form>
+
             <!-- END PAGE CONTAINER-->
         </div>
 

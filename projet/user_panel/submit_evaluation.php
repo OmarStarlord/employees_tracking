@@ -3,13 +3,6 @@ session_start();
 
 include 'config.php';
 
- 
-
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
-
-
 if (isset($_FILES["evaluation_form"])) {
     $employeeID = 1; // Assuming employeeID is stored in session
 
@@ -25,35 +18,49 @@ if (isset($_FILES["evaluation_form"])) {
     $file_name = basename($_FILES["evaluation_form"]["name"]);
 
     // Generate a unique file name using old name + done / the done should be added before type 
-    $unique_file_name = $file_name ;
+    $unique_file_name = $file_name;
 
     // Set the target file path
     $target_file = $target_dir . $unique_file_name;
 
-
     if (move_uploaded_file($_FILES["evaluation_form"]["tmp_name"], $target_file)) {
 
         $sql = "UPDATE performanceevaluations SET EvaluationForm = ? WHERE EmployeeID = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("si", $target_file, $employeeID);
-        if ($stmt->execute()) {
+        $params = array($target_file, $employeeID);
+        $stmt = sqlsrv_query($conn, $sql, $params);
+
+        if ($stmt !== false) {
             echo "Evaluation form updated successfully.";
         } else {
-            echo "Error: " . $stmt->error;
+            echo "Error: " . print_r(sqlsrv_errors(), true);
         }
-        $stmt->close();
+        sqlsrv_free_stmt($stmt);
     } else {
         // Error moving uploaded file
         echo "Error uploading file. Please try again.";
     }
+
+
+
+    if (isset($_GET['logout'])) {
+        // Unset all session variables
+        $_SESSION = array();
+
+        // Destroy the session
+        session_destroy();
+
+        // Redirect to the login page
+        header("Location: ../login.php");
+        exit();
+    }
+
+
+    
+
 } else {
     // No file uploaded
     echo "No file uploaded.";
 }
-
-
-// Close connection
-$conn->close();
 ?>
 
 
@@ -112,8 +119,8 @@ $conn->close();
                     </div>
                     <h4 class="name">john doe</h4>
                     <form method="post" action="">
-    <button type="submit" name="logout">Logout</button>
-</form>
+                            <button type="submit" name="logout">Logout</button>
+                        </form>
                 </div>
                 <nav class="navbar-sidebar2">
                         <ul class="list-unstyled navbar__list">
@@ -128,13 +135,17 @@ $conn->close();
                                     <i class="fas fa-chart-bar"></i>Telecharger Evaluation</a>
                             </li>
                             <li>
-                                <a href="submit_evalution.php">
+                                <a href="submit_evaluation.php">
                                     <i class="fas fa-shopping-basket"></i>Soumettre Evaluation</a>
                             </li>
                             <li>
                                 <a href="demande_conge.php">
                                     <i class="fas fa-shopping-basket"></i>Demande Congé</a>
                             </li>
+                            <li>
+                            <a href="valider_taches.php">
+                                <i class="fas fa-shopping-basket"></i>Valider Taches</a>
+                        </li>
                             
                             
                         </ul>
