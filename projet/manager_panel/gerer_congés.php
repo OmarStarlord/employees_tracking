@@ -2,51 +2,53 @@
 session_start();
 
 include 'config.php';
-$conn = new mysqli(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_DATABASE);
+
 if (isset($_SESSION['email'])) {
 
-    // get employee name from session variable
+    // Get employee email from session variable
     $email = $_SESSION['email'];
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Retrieve data from the form
-    $requestID = $_POST['request_id'];
-    $status = $_POST['status'];
-    
-    
+    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+        // Retrieve data from the form
+        $requestID = $_POST['request_id'];
+        $status = $_POST['status'];
 
-    if ($conn->connect_error) {
-        die("Connection failed: " . $conn->connect_error);
+        // Prepare the SQL statement
+        $sql = "UPDATE LeaveRequests SET Status = ? WHERE RequestID = ? AND EmployeeEmail = ?";
+        $params = array($status, $requestID, $email);
+        $stmt = sqlsrv_query($conn, $sql, $params);
+
+        // Check if the update was successful
+        if ($stmt) {
+            $rowsAffected = sqlsrv_rows_affected($stmt);
+            if ($rowsAffected > 0) {
+                echo "Status updated successfully.";
+            } else {
+                echo "No rows were updated.";
+            }
+        } else {
+            echo "Error updating status: " . sqlsrv_errors()[0]['message'];
+        }
+
+        // Free statement and close connection
+        sqlsrv_free_stmt($stmt);
+        sqlsrv_close($conn);
     }
 
-    // Update the status in the database
-    $sql = "UPDATE LeaveRequests SET Status = ? WHERE RequestID = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("si", $status, $requestID);
-
-    if ($stmt->execute()) {
-        echo "Status updated successfully.";
-    } else {
-        echo "Error updating status: " . $conn->error;
-    }
-
-    $stmt->close();
-    $conn->close();
-}
-
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['logout'])) {
+    // Logout
+    if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['logout'])) {
         session_destroy();
         header("Location: ../login.php");
         exit();
     }
 
-}
-else {
+} else {
     header("Location: ../login.php");
     exit();
-
 }
 ?>
+
+
 
 <!DOCTYPE html>
 <html lang="en">

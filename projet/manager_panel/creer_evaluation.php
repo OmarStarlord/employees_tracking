@@ -5,54 +5,55 @@ session_start();
 require_once 'config.php';
 include 'classes/_evaluation.php';
 
-$conn = new mysqli(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_DATABASE);
+ 
 if (isset($_SESSION['email'])) {
 
-    // get employee name from session variable
+    // Get employee email from session variable
     $email = $_SESSION['email'];
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $employee_id = $_POST['employee_id'];
-    $evaluation_date = $_POST['evaluation_date'];
 
-    // Define the target directory
-    $target_dir = "uploads/";
+    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+        $employee_id = $_POST['employee_id'];
+        $evaluation_date = $_POST['evaluation_date'];
 
-    // Rename the uploaded file to a combination of employee ID and evaluation date
-    $target_file = $target_dir . $employee_id . '_' . $evaluation_date . '_' . basename($_FILES["evaluation_form"]["name"]);
+        // Define the target directory
+        $target_dir = "uploads/";
 
-    // Instantiate Evaluation object
-    $evaluation = new Evaluation($employee_id, $evaluation_date, $target_file);
+        // Rename the uploaded file to a combination of employee ID and evaluation date
+        $target_file = $target_dir . $employee_id . '_' . $evaluation_date . '_' . basename($_FILES["evaluation_form"]["name"]);
 
-    // Handle file upload
-    if (isset($_FILES["evaluation_form"]) && $_FILES["evaluation_form"]["error"] == 0) {
-        // Move uploaded file to target directory
-        if (move_uploaded_file($_FILES["evaluation_form"]["tmp_name"], $target_file)) {
-            // Insert the evaluation record
-            $evaluation->insert($conn);
-            echo "Evaluation submitted successfully.";
+        // Instantiate Evaluation object
+        $evaluation = new Evaluation($employee_id, $evaluation_date, $target_file);
+
+        // Handle file upload
+        if (isset($_FILES["evaluation_form"]) && $_FILES["evaluation_form"]["error"] == 0) {
+            // Move uploaded file to target directory
+            if (move_uploaded_file($_FILES["evaluation_form"]["tmp_name"], $target_file)) {
+                // Insert the evaluation record
+                $evaluation->insert($conn);
+                echo "Evaluation submitted successfully.";
+            } else {
+                // Error moving uploaded file
+                echo "Error uploading file. Please try again.";
+            }
         } else {
-            // Error moving uploaded file
+            // No file uploaded or error occurred during upload
             echo "Error uploading file. Please try again.";
         }
-    } else {
-        // No file uploaded or error occurred during upload
-        echo "Error uploading file. Please try again.";
     }
-}
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['logout'])) {
+
+    // Logout
+    if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['logout'])) {
         session_destroy();
         header("Location: ../login.php");
         exit();
     }
 
-}
-
-else {
+} else {
     header("Location: ../login.php");
     exit();
-
 }
 ?>
+
 
 
 

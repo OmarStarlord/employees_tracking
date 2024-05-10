@@ -3,51 +3,50 @@
 session_start();
 
 include 'config.php';
-$conn = new mysqli(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_DATABASE);
+
 if (isset($_SESSION['email'])) {
 
     // get employee name from session variable
     $email = $_SESSION['email'];
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Retrieve data from the form
-    $evaluationID = $_POST['evaluation_id'];
-    $result = $_POST['result'];
 
-    // Connect to the database
+    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+        // Retrieve data from the form
+        $evaluationID = $_POST['evaluation_id'];
+        $result = $_POST['result'];
 
+        // Connect to the database
+        $conn = sqlsrv_connect($serverName, $connectionOptions);
 
-    if ($conn->connect_error) {
-        die("Connection failed: " . $conn->connect_error);
+        if ($conn === false) {
+            die("Connection failed: " . print_r(sqlsrv_errors(), true));
+        }
+
+        // Update the result in the database
+        $sql = "UPDATE performanceevaluations SET Result = ? WHERE EvaluationID = ?";
+        $params = array($result, $evaluationID);
+        $stmt = sqlsrv_query($conn, $sql, $params);
+
+        if ($stmt) {
+            echo "Result updated successfully.";
+        } else {
+            echo "Error updating result: " . print_r(sqlsrv_errors(), true);
+        }
+
+        sqlsrv_free_stmt($stmt);
+        sqlsrv_close($conn);
     }
 
-    // Update the result in the database
-    $sql = "UPDATE performanceevaluations SET Result = ? WHERE EvaluationID = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("si", $result, $evaluationID);
-
-    if ($stmt->execute()) {
-        echo "Result updated successfully.";
-    } else {
-        echo "Error updating result: " . $conn->error;
-    }
-
-    $stmt->close();
-    $conn->close();
-}
-
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['logout'])) {
+    if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['logout'])) {
         session_destroy();
         header("Location: ../login.php");
         exit();
     }
-
-
-}
-else {
+} else {
     header("Location: ../login.php");
     exit();
 }
 ?>
+
 
 
 

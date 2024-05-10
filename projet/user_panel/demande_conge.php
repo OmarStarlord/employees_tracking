@@ -3,35 +3,40 @@ session_start();
 include 'classes/_leaverequest.php';
 include 'config.php';
 
-$conn = new mysqli(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_DATABASE);
-
 // Check session
 if (isset($_SESSION['email'])) {
 
-    // get employee name from session variable
+    // Get employee email from session variable
     $email = $_SESSION['email'];
 
     if ($conn->connect_error) {
         die("Connection failed: " . $conn->connect_error);
     }
 
-    // get employee from db using email
-    $sql = "SELECT * FROM employees WHERE Email = '$email'";
-    $result = $conn->query($sql);
-    $row = $result->fetch_assoc();
-    $employee = $row['Name'];
+    // Get employee from db using email
+    $sql = "SELECT * FROM Employees WHERE Email = ?";
+    $params = array($email);
+    $stmt = sqlsrv_query($conn, $sql, $params);
+
+    // Check if the query executed successfully
+    if ($stmt === false) {
+        echo "Error: " . print_r(sqlsrv_errors(), true);
+        exit();
+    }
+
+    // Fetch employee data
+    $row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
+    $employeeID = $row['EmployeeID'];
 
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        $employeeID = $row['EmployeeID'];
-
         // Get current date
         $requestDate = date("Y-m-d");
 
-        // Set other form data
+        // Get form data
         $startDate = $_POST['start_date'];
         $endDate = $_POST['end_date'];
         $status = 'Pending';
-        $managerID = null;
+        $managerID = null; // Assuming manager ID is not yet assigned
 
         // Create a new request object
         $request = new LeaveRequest($employeeID, $requestDate, $startDate, $endDate, $status, null, $managerID);
@@ -40,7 +45,7 @@ if (isset($_SESSION['email'])) {
         $request->insert($conn);
     }
 
-    // logout
+    // Logout
     if (isset($_GET['logout'])) {
         // Unset all session variables
         $_SESSION = array();
@@ -54,12 +59,11 @@ if (isset($_SESSION['email'])) {
     }
 
     // Close connection
-    $conn->close();
-}
-else {
+    sqlsrv_free_stmt($stmt);
+    sqlsrv_close($conn);
+} else {
     header("Location: ../login.php");
     exit();
-
 }
 ?>
 

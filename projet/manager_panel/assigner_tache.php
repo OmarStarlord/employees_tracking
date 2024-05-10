@@ -6,36 +6,38 @@ require_once 'config.php';
 include 'classes/_task.php';
 
 
-$conn = new mysqli(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_DATABASE);
+ 
 if (isset($_SESSION['email'])) {
 
-    // get employee name from session variable
+    // Get employee email from session variable
     $email = $_SESSION['email'];
 
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $taskName = $_POST['task_name'];
-    $taskDescription = $_POST['description'];
-    $taskStatus = "Not Started";
-    $taskPriority = $_POST['task_priority']; 
-    $taskDueDate = $_POST['deadline'];
-    $employeeID = $_POST['employee_id'];
+    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+        $taskName = $_POST['task_name'];
+        $taskDescription = $_POST['description'];
+        $taskStatus = "Not Started";
+        $taskPriority = $_POST['task_priority']; 
+        $taskDueDate = $_POST['deadline'];
+        $employeeID = $_POST['employee_id'];
 
-    $task = new Task($taskName, $taskDescription, $taskStatus, $taskPriority, $taskDueDate, $employeeID);
-    $task->insert($conn);
-}
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['logout'])) {
+        // Create a new Task object
+        $task = new Task($taskName, $taskDescription, $taskStatus, $taskPriority, $taskDueDate, $employeeID);
+
+        // Insert the new task
+        $task->insert($conn);
+    }
+
+    // Logout
+    if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['logout'])) {
         session_destroy();
         header("Location: ../login.php");
         exit();
     }
 
-}
-
-else {
+} else {
     header("Location: ../login.php");
     exit();
-
 }
 ?>
 

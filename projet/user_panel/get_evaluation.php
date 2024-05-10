@@ -1,79 +1,69 @@
 <?php
 include 'config.php';
 
-// Establish database connection
-$conn = new mysqli(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_DATABASE);
 
-// Check for connection errors
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
+
+// Check if the user is logged in
 if (isset($_SESSION['email'])) {
 
-    // get employee name from session variable
+    // Get employee email from session variable
     $email = $_SESSION['email'];
-// Initialize variables
-$employeeID = 1;
-$downloadLink = '';
 
-// Prepare and execute the query
-$sql = "SELECT * FROM performanceevaluations WHERE EmployeeID = ?";
-$stmt = $conn->prepare($sql);
+    // Initialize variables
+    $employeeID = 1; // Assuming you have the employee ID available from the session or elsewhere
+    $downloadLink = '';
 
-if ($stmt === false) {
-    die("Failed to prepare statement: " . $conn->error);
-}
+    // Prepare and execute the query
+    $sql = "SELECT * FROM PerformanceEvaluations WHERE EmployeeID = ?";
+    $params = array($employeeID);
+    $stmt = sqlsrv_query($conn, $sql, $params);
 
-$stmt->bind_param("i", $employeeID);
-$resultExec = $stmt->execute();
-
-if ($resultExec === false) {
-    die("Error executing query: " . $stmt->error);
-}
-
-// Get result set
-$resultSet = $stmt->get_result();
-
-// Check if any rows are returned
-if ($resultSet->num_rows > 0) {
-    // Evaluation found, display the evaluation details or provide download link
-    while ($row = $resultSet->fetch_assoc()) {
-        $evaluationID = $row["EvaluationID"];
-        $evaluationDate = $row["EvaluationDate"];
-        
-        // Extract employee ID and evaluation date from the filename
-        $fileName = basename($row["EvaluationForm"]);
-        preg_match('/(\d+)_(\d{4}-\d{2}-\d{2})_/', $fileName, $matches);
-        $employeeID = $matches[1];
-        #$evaluationDate = $matches[2];
-
-        // Generate the new file path based on the extracted employee ID and evaluation date
-        $evaluationForm = "../manager_panel/uploads/" . $fileName;
-
-        // Generate download link for the evaluation form
-        $downloadLink = "<a href='$evaluationForm' download>Download Evaluation Form</a>";
+    // Check if the query executed successfully
+    if ($stmt === false) {
+        echo "Error: " . print_r(sqlsrv_errors(), true);
+        exit();
     }
+
+    // Get result set
+    if (sqlsrv_has_rows($stmt)) {
+        // Evaluation found, display the evaluation details or provide download link
+        while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
+            $evaluationID = $row["EvaluationID"];
+            $evaluationDate = $row["EvaluationDate"];
+            
+            // Extract employee ID and evaluation date from the filename
+            $fileName = basename($row["EvaluationForm"]);
+            preg_match('/(\d+)_(\d{4}-\d{2}-\d{2})_/', $fileName, $matches);
+            $employeeID = $matches[1];
+            #$evaluationDate = $matches[2];
+
+            // Generate the new file path based on the extracted employee ID and evaluation date
+            $evaluationForm = "../manager_panel/uploads/" . $fileName;
+
+            // Generate download link for the evaluation form
+            $downloadLink = "<a href='$evaluationForm' download>Download Evaluation Form</a>";
+        }
+    } else {
+        // No evaluation found for the provided employee ID
+        $downloadLink = "No evaluation found for the logged-in Employee ID.";
+    }
+
+    // Close statement
+    sqlsrv_free_stmt($stmt);
+
+    // Output the download link
+    echo $downloadLink;
+
 } else {
-    // No evaluation found for the provided employee ID
-    $downloadLink = "No evaluation found for the logged-in Employee ID.";
-}
-
-// Close statement and connection
-$stmt->close();
-$conn->close();
-
-// Output the download link
-echo $downloadLink;
-
-
-}
-else {
+    // Redirect to login page if user is not logged in
     header("Location: ../login.php");
     exit();
-
 }
+
+// Close connection
+sqlsrv_close($conn);
 ?>
-?>
+
 
 <!DOCTYPE html>
 <html lang="en">

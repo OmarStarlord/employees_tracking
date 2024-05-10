@@ -2,21 +2,26 @@
 session_start(); // Start session at the beginning
 
 include 'config.php';
-$conn = new mysqli(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_DATABASE);
 
 if (isset($_SESSION['email'])) {
     // get employee name from session variable
     $email = $_SESSION['email'];
 
-    if ($conn->connect_error) {
-        die("Connection failed: " . $conn->connect_error);
+    // Connect to the database
+    $conn = sqlsrv_connect($serverName, $connectionOptions);
+
+    if ($conn === false) {
+        die("Connection failed: " . print_r(sqlsrv_errors(), true));
     }
 
     function getCount($conn, $table)
     {
         $sql = "SELECT COUNT(*) as count FROM $table";
-        $result = $conn->query($sql);
-        $row = $result->fetch_assoc();
+        $stmt = sqlsrv_query($conn, $sql);
+        if ($stmt === false) {
+            die("Query failed: " . print_r(sqlsrv_errors(), true));
+        }
+        $row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
         return $row['count'];
     }
 
@@ -29,6 +34,8 @@ if (isset($_SESSION['email'])) {
         header("Location: ../login.php");
         exit();
     }
+
+    sqlsrv_close($conn); // Close connection
 } else {
     header("Location: ../login.php");
     exit();

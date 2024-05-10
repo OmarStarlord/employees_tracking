@@ -19,32 +19,42 @@ class Employe {
         $this->departmentId = $departmentId;
     }
 
-    public function insert($conn) {
-    $sql = "INSERT INTO employees (FirstName, LastName, Email, Password, Role, DepartmentID) VALUES ('$this->nom', '$this->prenom', '$this->email', '$this->password', '$this->role', '$this->departmentId')";
-    if ($conn->query($sql) === true) {
-        echo "New record created successfully";
+   public function insert($conn) {
+    $sql = "INSERT INTO Employees (FirstName, LastName, Email, Password, Role, DepartmentID) VALUES (?, ?, ?, ?, ?, ?)";
+    $params = array($this->nom, $this->prenom, $this->email, $this->password, $this->role, $this->departmentId);
+    $stmt = sqlsrv_query($conn, $sql, $params);
+
+    if ($stmt === false) {
+        echo "Error: " . print_r(sqlsrv_errors(), true);
     } else {
-        echo "Error: " . $sql . "<br>" . $conn->error;
+        echo "New record created successfully";
     }
 }
 
 public function update($conn) {
-    $sql = "UPDATE employees SET FirstName = '$this->nom', LastName = '$this->prenom', Email = '$this->email', Password = '$this->password', Role = '$this->role', DepartmentID = '$this->departmentId' WHERE EmployeeID = $this->id";
-    if ($conn->query($sql) === true) {
-        echo "Record updated successfully";
+    $sql = "UPDATE Employees SET FirstName = ?, LastName = ?, Email = ?, Password = ?, Role = ?, DepartmentID = ? WHERE EmployeeID = ?";
+    $params = array($this->nom, $this->prenom, $this->email, $this->password, $this->role, $this->departmentId, $this->id);
+    $stmt = sqlsrv_query($conn, $sql, $params);
+
+    if ($stmt === false) {
+        echo "Error: " . print_r(sqlsrv_errors(), true);
     } else {
-        echo "Error: " . $sql . "<br>" . $conn->error;
+        echo "Record updated successfully";
     }
 }
 
 public function delete($conn) {
-    $sql = "DELETE FROM employees WHERE EmployeeID = $this->id";
-    if ($conn->query($sql) === true) {
-        echo "Record deleted successfully";
+    $sql = "DELETE FROM Employees WHERE EmployeeID = ?";
+    $params = array($this->id);
+    $stmt = sqlsrv_query($conn, $sql, $params);
+
+    if ($stmt === false) {
+        echo "Error: " . print_r(sqlsrv_errors(), true);
     } else {
-        echo "Error: " . $sql . "<br>" . $conn->error;
+        echo "Record deleted successfully";
     }
 }
+
 
 
     

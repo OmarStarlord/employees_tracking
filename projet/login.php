@@ -2,12 +2,6 @@
 session_start(); // Start session at the beginning
 
 include 'config.php';
-$conn = new mysqli(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_DATABASE);
-
-// Check the connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
 
 // Check if the form is submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -16,17 +10,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $password = $_POST['password'];
 
     // Prepare a SQL statement to retrieve user information based on email
-    $sql = "SELECT * FROM employees WHERE Email = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("s", $email);
-    $stmt->execute();
-    $result = $stmt->get_result();
+    $sql = "SELECT * FROM Employees WHERE Email = ?";
+    $params = array($email);
+    $stmt = sqlsrv_query($conn, $sql, $params);
+
+    // Check if the query executed successfully
+    if ($stmt === false) {
+        echo "Error: " . print_r(sqlsrv_errors(), true);
+        exit();
+    }
 
     // Check if a user with the provided email exists
-    if ($result->num_rows == 1) {
+    if (sqlsrv_has_rows($stmt)) {
         // User exists, verify password
-        $row = $result->fetch_assoc();
-        $password_user= $row['Password'];
+        $row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
+        $password_user = $row['Password'];
         if ($password === $password_user) {
             // Password is correct, retrieve their role
             $role = $row['Role'];
@@ -55,8 +53,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     // Close the statement and the database connection
-    $stmt->close();
-    $conn->close();
+    sqlsrv_free_stmt($stmt);
+    sqlsrv_close($conn);
 }
 ?>
 

@@ -15,32 +15,40 @@ class Evaluation {
     }
 
     public function insert($conn) {
-    $sql = "INSERT INTO performanceevaluations (EmployeeID, EvaluationDate, EvaluationForm, Result) VALUES ('$this->employeeID', '$this->evaluationDate', '$this->evaluationForm', '$this->result')";
-    if ($conn->query($sql) === TRUE) {
-        echo "New record created successfully";
+    $sql = "INSERT INTO PerformanceEvaluations (EmployeeID, EvaluationDate, EvaluationForm, Result) VALUES (?, ?, ?, ?)";
+    $params = array($this->employeeID, $this->evaluationDate, $this->evaluationForm, $this->result);
+    $stmt = sqlsrv_query($conn, $sql, $params);
+
+    if ($stmt === false) {
+        echo "Error: " . print_r(sqlsrv_errors(), true);
     } else {
-        echo "Error: " . $sql . "<br>" . $conn->error;
+        echo "New record created successfully";
     }
 }
 
 public function update($conn) {
-    $sql = "UPDATE performanceevaluations SET EvaluationDate = '$this->evaluationDate', EvaluationForm = '$this->evaluationForm', Result = '$this->result' WHERE EvaluationID = $this->evaluationID";
-    if ($conn->query($sql) === TRUE) {
-        echo "Record updated successfully";
+    $sql = "UPDATE PerformanceEvaluations SET EvaluationDate = ?, EvaluationForm = ?, Result = ? WHERE EvaluationID = ?";
+    $params = array($this->evaluationDate, $this->evaluationForm, $this->result, $this->evaluationID);
+    $stmt = sqlsrv_query($conn, $sql, $params);
+
+    if ($stmt === false) {
+        echo "Error: " . print_r(sqlsrv_errors(), true);
     } else {
-        echo "Error: " . $sql . "<br>" . $conn->error;
+        echo "Record updated successfully";
     }
 }
 
 public function delete($conn) {
-    $sql = "DELETE FROM performanceevaluations WHERE EvaluationID = $this->evaluationID";
-    if ($conn->query($sql) === TRUE) {
-        echo "Record deleted successfully";
+    $sql = "DELETE FROM PerformanceEvaluations WHERE EvaluationID = ?";
+    $params = array($this->evaluationID);
+    $stmt = sqlsrv_query($conn, $sql, $params);
+
+    if ($stmt === false) {
+        echo "Error: " . print_r(sqlsrv_errors(), true);
     } else {
-        echo "Error: " . $sql . "<br>" . $conn->error;
+        echo "Record deleted successfully";
     }
 }
-
 
     
     

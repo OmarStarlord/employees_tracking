@@ -1,22 +1,20 @@
 <?php
 include 'config.php';
 
-
-$conn = new mysqli(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_DATABASE);
-
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+# check if conn is established
+if ($conn === false) {
+    echo "Connection failed. Error: " . print_r(sqlsrv_errors(), true);
 }
 
 
 $sql = "
 CREATE TABLE Departments (
-    DepartmentID INT PRIMARY KEY AUTO_INCREMENT,
+    DepartmentID INT PRIMARY KEY IDENTITY(1,1),
     DepartmentName VARCHAR(255)
 );
 
 CREATE TABLE Employees (
-    EmployeeID INT PRIMARY KEY AUTO_INCREMENT,
+    EmployeeID INT PRIMARY KEY IDENTITY(1,1),
     FirstName VARCHAR(255),
     LastName VARCHAR(255),
     Email VARCHAR(255),
@@ -27,7 +25,7 @@ CREATE TABLE Employees (
 );
 
 CREATE TABLE WorkSchedules (
-    ScheduleID INT PRIMARY KEY AUTO_INCREMENT,
+    ScheduleID INT PRIMARY KEY IDENTITY(1,1),
     EmployeeID INT,
     Date DATE,
     StartTime TIME,
@@ -36,7 +34,7 @@ CREATE TABLE WorkSchedules (
 );
 
 CREATE TABLE LeaveRequests (
-    RequestID INT PRIMARY KEY AUTO_INCREMENT,
+    RequestID INT PRIMARY KEY IDENTITY(1,1),
     EmployeeID INT,
     RequestDate DATE,
     StartDate DATE,
@@ -48,7 +46,7 @@ CREATE TABLE LeaveRequests (
 );
 
 CREATE TABLE PerformanceEvaluations (
-    EvaluationID INT PRIMARY KEY AUTO_INCREMENT,
+    EvaluationID INT PRIMARY KEY IDENTITY(1,1),
     EmployeeID INT,
     EvaluationDate DATE,
     EvaluationForm VARCHAR(255),
@@ -56,10 +54,8 @@ CREATE TABLE PerformanceEvaluations (
     FOREIGN KEY (EmployeeID) REFERENCES Employees(EmployeeID)
 );
 
-
-
-CREATE TABLE TASKS (
-    TaskID INT PRIMARY KEY AUTO_INCREMENT,
+CREATE TABLE Tasks (
+    TaskID INT PRIMARY KEY IDENTITY(1,1),
     TaskName VARCHAR(255),
     TaskDescription VARCHAR(255),
     TaskStatus VARCHAR(50),
@@ -70,12 +66,21 @@ CREATE TABLE TASKS (
 );
 ";
 
+$queries = explode(';', $sql);
 
-if ($conn->multi_query($sql) === TRUE) {
-    echo "Tables created successfully";
-} else {
-    echo "Error creating tables: " . $conn->error;
+// Execute each SQL statement individually
+foreach ($queries as $query) {
+    if (!empty(trim($query))) {
+        $stmt = sqlsrv_query($conn, $query);
+        if ($stmt === false) {
+            echo "Error creating tables: " . print_r(sqlsrv_errors(), true);
+            break; // Stop execution if an error occurs
+        }
+    }
 }
 
-$conn->close();
+echo "Tables created successfully";
+
+// Close the connection
+sqlsrv_close($conn);
 ?>

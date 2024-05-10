@@ -1,7 +1,22 @@
 <?php
-   define('DB_SERVER', 'localhost');
-   define('DB_USERNAME', 'omar');
-   define('DB_PASSWORD', '123456');
-   define('DB_DATABASE', 'projet_s6');
-   $db = mysqli_connect(DB_SERVER,DB_USERNAME,DB_PASSWORD,DB_DATABASE);
+// Database configuration
+$serverName = "OMAR-LAPTOP\\SQLEXPRESS"; // Server name
+$databaseName = "projet_final"; // Database name
+$username = "starlord"; // Your SQL Server username
+$password = "123456789"; // Your SQL Server password
+
+// Connection options
+$connectionOptions = array(
+    "Database" => $databaseName,
+    "Uid" => $username,
+    "PWD" => $password
+);
+
+// Establishes the connection
+$conn = sqlsrv_connect($serverName, $connectionOptions);
+
+// Check if the connection is successful
+if ($conn === false) {
+    die("Connection failed. Error: " . print_r(sqlsrv_errors(), true));
+}
 ?>

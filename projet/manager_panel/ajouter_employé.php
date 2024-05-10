@@ -4,44 +4,42 @@ session_start();
 require_once 'config.php';
 include 'classes/_employe.php';
 
-
-$conn = new mysqli(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_DATABASE);
 if (isset($_SESSION['email'])) {
 
-    // get employee name from session variable
+    // Get employee email from session variable
     $email = $_SESSION['email'];
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    
-    $first_name = $_POST['first_name'];
-    $last_name = $_POST['last_name'];
-    $email = $_POST['email'];
-    $role = $_POST['role'];
-    $departmentId = $_POST['department'];
+    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+        $first_name = $_POST['first_name'];
+        $last_name = $_POST['last_name'];
+        $email = $_POST['email'];
+        $role = $_POST['role'];
+        $departmentId = $_POST['department'];
 
-    
-    $password = $first_name . $last_name . "123";
-    $newEmployee = new Employe($first_name, $last_name, $email, $password , $role, $departmentId);
+        // Set password
+        $password = $first_name . $last_name . "123";
 
-    
-    $newEmployee->insert($conn);
+        // Create a new Employee object
+        $newEmployee = new Employe($first_name, $last_name, $email, $password , $role, $departmentId);
 
-    echo "Employee added successfully.";
-}
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['logout'])) {
+        // Insert the new employee
+        $newEmployee->insert($conn);
+
+        echo "Employee added successfully.";
+    }
+
+    // Logout
+    if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['logout'])) {
         session_destroy();
         header("Location: ../login.php");
         exit();
     }
-// logout
-
-}
-else {
+} else {
     header("Location: ../login.php");
     exit();
-
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">

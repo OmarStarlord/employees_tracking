@@ -20,36 +20,45 @@ class Request {
 
     // Insert function
     public function insert($conn) {
-        $sql = "INSERT INTO leaverequests (EmployeeID, RequestDate, StartDate, EndDate, Status, ManagerID) 
-                VALUES ('$this->employeeID', '$this->requestDate', '$this->startDate', '$this->endDate', '$this->status', '$this->managerID')";
-        if ($conn->query($sql) === true) {
-            echo "New record created successfully";
-        } else {
-            echo "Error: " . $sql . "<br>" . $conn->error;
-        }
-    }
+    $sql = "INSERT INTO LeaveRequests (EmployeeID, RequestDate, StartDate, EndDate, Status, ManagerID) 
+            VALUES (?, ?, ?, ?, ?, ?)";
+    $params = array($this->employeeID, $this->requestDate, $this->startDate, $this->endDate, $this->status, $this->managerID);
+    $stmt = sqlsrv_query($conn, $sql, $params);
 
-    // Update function
-    public function update($conn) {
-        $sql = "UPDATE leaverequests SET EmployeeID = '$this->employeeID', RequestDate = '$this->requestDate', 
-                StartDate = '$this->startDate', EndDate = '$this->endDate', Status = '$this->status', ManagerID = '$this->managerID' 
-                WHERE RequestID = requestID";
-        if ($conn->query($sql) === true) {
-            echo "Record updated successfully";
-        } else {
-            echo "Error: " . $sql . "<br>" . $conn->error;
-        }
+    if ($stmt === false) {
+        echo "Error: " . print_r(sqlsrv_errors(), true);
+    } else {
+        echo "New record created successfully";
     }
+}
 
-    // Delete function
-    public function delete($conn) {
-        $sql = "DELETE FROM leaverequests WHERE RequestID = requestID";
-        if ($conn->query($sql) === true) {
-            echo "Record deleted successfully";
-        } else {
-            echo "Error: " . $sql . "<br>" . $conn->error;
-        }
+// Update function
+public function update($conn) {
+    $sql = "UPDATE LeaveRequests SET EmployeeID = ?, RequestDate = ?, StartDate = ?, EndDate = ?, Status = ?, ManagerID = ? 
+            WHERE RequestID = ?";
+    $params = array($this->employeeID, $this->requestDate, $this->startDate, $this->endDate, $this->status, $this->managerID, $this->requestID);
+    $stmt = sqlsrv_query($conn, $sql, $params);
+
+    if ($stmt === false) {
+        echo "Error: " . print_r(sqlsrv_errors(), true);
+    } else {
+        echo "Record updated successfully";
     }
+}
+
+// Delete function
+public function delete($conn) {
+    $sql = "DELETE FROM LeaveRequests WHERE RequestID = ?";
+    $params = array($this->requestID);
+    $stmt = sqlsrv_query($conn, $sql, $params);
+
+    if ($stmt === false) {
+        echo "Error: " . print_r(sqlsrv_errors(), true);
+    } else {
+        echo "Record deleted successfully";
+    }
+}
+
 
 }
 

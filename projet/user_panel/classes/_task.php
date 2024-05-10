@@ -17,35 +17,40 @@ class Task {
     }
 
     public function insert($conn){
-    $sql = "INSERT INTO tasks (TaskName, TaskDescription, TaskStatus, TaskPriority, TaskDueDate, EmployeeID) VALUES ('$this->taskName', '$this->taskDescription', '$this->taskStatus', '$this->taskPriority', '$this->taskDueDate', '$this->employeeID')";
-    if ($conn->query($sql) === true) {
-        echo "New record created successfully";
+    $sql = "INSERT INTO TASKS (TaskName, TaskDescription, TaskStatus, TaskPriority, TaskDueDate, EmployeeID) VALUES (?, ?, ?, ?, ?, ?)";
+    $params = array($this->taskName, $this->taskDescription, $this->taskStatus, $this->taskPriority, $this->taskDueDate, $this->employeeID);
+    $stmt = sqlsrv_query($conn, $sql, $params);
+
+    if ($stmt === false) {
+        echo "Error: " . print_r(sqlsrv_errors(), true);
     } else {
-        echo "Error: " . $sql . "<br>" . $conn->error;
+        echo "New record created successfully";
     }
 }
 
 public function update($conn){
-    $sql = "UPDATE tasks SET TaskName = '$this->taskName', TaskDescription = '$this->taskDescription', TaskStatus = '$this->taskStatus', TaskPriority = '$this->taskPriority', TaskDueDate = '$this->taskDueDate', EmployeeID = '$this->employeeID' WHERE TaskID = $this->taskID";
-    if ($conn->query($sql) === true) {
-        echo "Record updated successfully";
+    $sql = "UPDATE TASKS SET TaskName = ?, TaskDescription = ?, TaskStatus = ?, TaskPriority = ?, TaskDueDate = ?, EmployeeID = ? WHERE TaskID = ?";
+    $params = array($this->taskName, $this->taskDescription, $this->taskStatus, $this->taskPriority, $this->taskDueDate, $this->employeeID, $this->taskID);
+    $stmt = sqlsrv_query($conn, $sql, $params);
+
+    if ($stmt === false) {
+        echo "Error: " . print_r(sqlsrv_errors(), true);
     } else {
-        echo "Error: " . $sql . "<br>" . $conn->error;
+        echo "Record updated successfully";
     }
 }
 
 public function delete($conn){
-    $sql = "DELETE FROM tasks WHERE TaskID = $this->taskID";
-    if ($conn->query($sql) === true) {
-        echo "Record deleted successfully";
+    $sql = "DELETE FROM TASKS WHERE TaskID = ?";
+    $params = array($this->taskID);
+    $stmt = sqlsrv_query($conn, $sql, $params);
+
+    if ($stmt === false) {
+        echo "Error: " . print_r(sqlsrv_errors(), true);
     } else {
-        echo "Error: " . $sql . "<br>" . $conn->error;
+        echo "Record deleted successfully";
     }
 }
-
-
-    
-
 
 
 

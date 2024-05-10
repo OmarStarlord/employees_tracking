@@ -3,54 +3,47 @@ session_start();
 
 include 'config.php';
 
-
 if (isset($_SESSION['email'])) {
 
-    // get employee name from session variable
+    // Get employee email from session variable
     $email = $_SESSION['email'];
-$message = '';
+    $message = '';
 
-// Check if the form is submitted
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Get the form data
-    $employee_id = $_POST['employee_id'];
-    $new_email = $_POST['new_email'];
-    $new_name = $_POST['new_name'];
-    $new_password = $_POST['new_password']; // Make sure to hash the password before storing it in the database
+    // Check if the form is submitted
+    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+        // Get the form data
+        $employee_id = $_POST['employee_id'];
+        $new_email = $_POST['new_email'];
+        $new_name = $_POST['new_name'];
+        $new_password = $_POST['new_password']; // Make sure to hash the password before storing it in the database
 
-    // Create a database connection
-    $conn = new mysqli(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_DATABASE);
+        // Prepare and execute the update query
+        $sql = "UPDATE Employees SET Email=?, FirstName=?, Password=? WHERE EmployeeID=?";
+        $params = array($new_email, $new_name, $new_password, $employee_id);
+        $stmt = sqlsrv_query($conn, $sql, $params);
 
-    // Check the connection
-    if ($conn->connect_error) {
-        die("Connection failed: " . $conn->connect_error);
+        // Check if the query executed successfully
+        if ($stmt === false) {
+            echo "Error: " . print_r(sqlsrv_errors(), true);
+            exit();
+        }
+
+        // Check if the update was successful
+        if (sqlsrv_rows_affected($stmt) > 0) {
+            $message = "Employee information updated successfully.";
+        } else {
+            $message = "Failed to update employee information.";
+        }
+
+        // Close the statement
+        sqlsrv_free_stmt($stmt);
     }
-
-    // Prepare and execute the update query
-    $sql = "UPDATE employees SET Email=?, FirstName=?, Password=? WHERE EmployeeID=?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("sssi", $new_email, $new_name, $new_password, $employee_id);
-    $stmt->execute();
-
-    // Check if the update was successful
-    if ($stmt->affected_rows > 0) {
-        $message = "Employee information updated successfully.";
-    } else {
-        $message = "Failed to update employee information.";
-    }
-
-    // Close the statement and the database connection
-    $stmt->close();
-    $conn->close();
-}
-}
-else {
+} else {
     header("Location: ../login.php");
     exit();
-
 }
-
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
