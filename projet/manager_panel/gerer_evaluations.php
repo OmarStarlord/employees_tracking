@@ -57,7 +57,6 @@ $sql = "SELECT * FROM Employees WHERE Email = '$email'";
 
 
 
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -70,7 +69,7 @@ $sql = "SELECT * FROM Employees WHERE Email = '$email'";
     <meta name="keywords" content="au theme template">
 
     <!-- Title Page-->
-    <title>Gérer Evaluations </title>
+    <title>Gérer Evaluations</title>
 
     <!-- Fontfaces CSS-->
     <link href="css/font-face.css" rel="stylesheet" media="all">
@@ -94,18 +93,19 @@ $sql = "SELECT * FROM Employees WHERE Email = '$email'";
     <!-- Main CSS-->
     <link href="css/theme.css" rel="stylesheet" media="all">
 
+    <style>
+        /* Adjust sidebar and main content */
+        .menu-sidebar2 {
+            width: 250px;
+        }
+
+        .page-container2 {
+            margin-left: 250px;
+            padding-top: 70px; /* Ensure space for the header */
+            position: relative;
+        }
+    </style>
 </head>
-
-<style>
-.menu-sidebar2 {
-    width: 250px; /* Adjust width as needed */
-}
-
-/* Add margin to main content area */
-.page-container2 {
-    margin-left: 250px; /* Same as sidebar width */
-}
-</style>
 
 <body class="animsition">
     <div class="page-wrapper">
@@ -212,18 +212,16 @@ $sql = "SELECT * FROM Employees WHERE Email = '$email'";
                                 <div class="header-button-item mr-0 js-sidebar-btn">
                                     <i class="zmdi zmdi-menu"></i>
                                 </div>
-                                <div class="setting-menu js-right-sidebar d-none d-lg-block">
+                                 <div class="setting-menu js-right-sidebar d-none d-lg-block">
                                     <div class="account-dropdown__body">
                                         <div class="account-dropdown__item">
-                                            <a href="#">
+                                            <a href="account.php">
                                                 <i class="zmdi zmdi-account"></i>Account</a>
                                         </div>
-                                        <div class="account-dropdown__item">
-                                            <a href="#">
-                                                <i class="zmdi zmdi-settings"></i>Setting</a>
-                                        </div>
+                                        
 
                                     </div>
+
                                 </div>
                             </div>
                         </div>
@@ -275,30 +273,7 @@ $sql = "SELECT * FROM Employees WHERE Email = '$email'";
             <!-- END HEADER DESKTOP-->
 
             <!-- BREADCRUMB-->
-            <section class="au-breadcrumb m-t-75">
-                <div class="section__content section__content--p30">
-                    <div class="container-fluid">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="au-breadcrumb-content">
-                                    <div class="au-breadcrumb-left">
-                                        <span class="au-breadcrumb-span">You are here:</span>
-                                        <ul class="list-unstyled list-inline au-breadcrumb__list">
-                                            <li class="list-inline-item active">
-                                                <a href="#">Home</a>
-                                            </li>
-                                            <li class="list-inline-item seprate">
-                                                <span>/</span>
-                                            </li>
-                                            <li class="list-inline-item">Dashboard</li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
+             
             <!-- END BREADCRUMB-->
 
             <div id="evaluations_div">
@@ -342,6 +317,32 @@ if ($stmt !== false) {
         echo '</form>';
         echo '</td>';
         echo '</tr>';
+        //styling the table
+        echo '<style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table, th, td {
+            border: 1px solid black;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        </style>';
+        
     }
     sqlsrv_free_stmt($stmt);
 } else {

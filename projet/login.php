@@ -66,38 +66,89 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
+
+    <!-- Custom CSS -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 50px auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            text-align: center;
+        }
+
+        .error-message {
+            color: red;
+            margin-bottom: 10px;
+        }
+
+        form {
+            margin-top: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+
+        button[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 
-<style>
-.menu-sidebar2 {
-    width: 250px; /* Adjust width as needed */
-}
-
-/* Add margin to main content area */
-.page-container2 {
-    margin-left: 250px; /* Same as sidebar width */
-}
-</style>
-
 <body>
-    <h2>Login</h2>
-    <?php
-    // Display error message if provided
-    if (isset($_GET['error']) && $_GET['error'] === 'InvalidCredentials') {
-        echo '<p style="color: red;">Invalid email or password. Please try again.</p>';
-    }
-    ?>
-    <form method="POST" action="login.php">
-        <div>
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email" required>
-        </div>
-        <div>
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password" required>
-        </div>
-        <button type="submit">Login</button>
-    </form>
+    <div class="container">
+        <h2>Login</h2>
+        <?php
+        // Display error message if provided
+        if (isset($_GET['error']) && $_GET['error'] === 'InvalidCredentials') {
+            echo '<p class="error-message">Invalid email or password. Please try again.</p>';
+        }
+        ?>
+        <form method="POST" action="login.php">
+            <div>
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div>
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit">Login</button>
+        </form>
+    </div>
 </body>
 
 </html>

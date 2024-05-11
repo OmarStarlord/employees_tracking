@@ -190,18 +190,16 @@ if (isset($_SESSION['email'])) {
                                 <div class="header-button-item mr-0 js-sidebar-btn">
                                     <i class="zmdi zmdi-menu"></i>
                                 </div>
-                                <div class="setting-menu js-right-sidebar d-none d-lg-block">
+                                 <div class="setting-menu js-right-sidebar d-none d-lg-block">
                                     <div class="account-dropdown__body">
                                         <div class="account-dropdown__item">
-                                            <a href="#">
+                                            <a href="account.php">
                                                 <i class="zmdi zmdi-account"></i>Account</a>
                                         </div>
-                                        <div class="account-dropdown__item">
-                                            <a href="#">
-                                                <i class="zmdi zmdi-settings"></i>Setting</a>
-                                        </div>
+                                        
 
                                     </div>
+
                                 </div>
                             </div>
                         </div>
@@ -252,30 +250,7 @@ if (isset($_SESSION['email'])) {
             <!-- END HEADER DESKTOP-->
 
             <!-- BREADCRUMB-->
-            <section class="au-breadcrumb m-t-75">
-                <div class="section__content section__content--p30">
-                    <div class="container-fluid">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="au-breadcrumb-content">
-                                    <div class="au-breadcrumb-left">
-                                        <span class="au-breadcrumb-span">You are here:</span>
-                                        <ul class="list-unstyled list-inline au-breadcrumb__list">
-                                            <li class="list-inline-item active">
-                                                <a href="#">Home</a>
-                                            </li>
-                                            <li class="list-inline-item seprate">
-                                                <span>/</span>
-                                            </li>
-                                            <li class="list-inline-item">Dashboard</li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
+             
             <!-- END BREADCRUMB-->
 
 

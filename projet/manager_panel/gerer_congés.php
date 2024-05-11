@@ -13,13 +13,14 @@ if (isset($_SESSION['email'])) {
         die(print_r(sqlsrv_errors(), true));
     }
     $row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
-    $employee_name = $row['FirstName'] . ' ' . $row['LastName'] ;
+    $employee_name = $row['FirstName'] . ' ' . $row['LastName'];
     $departmentId = $row['DepartmentID'];
 
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Retrieve data from the form
         $requestID = $_POST['request_id'];
-        $status = $_POST['status'];
+        $status = $_POST['status']; // Retrieve status from form
+        $action = $_POST['action']; // Retrieve action from form
 
         // Prepare the SQL statement
         $sql = "UPDATE LeaveRequests SET Status = ? WHERE RequestID = ? AND EmployeeID = (SELECT EmployeeID FROM Employees WHERE Email = ?)";
@@ -57,67 +58,81 @@ if (isset($_SESSION['email'])) {
 ?>
 
 
-
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-    <!-- Required meta tags-->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="au theme template">
     <meta name="author" content="Hau Nguyen">
     <meta name="keywords" content="au theme template">
-
-    <!-- Title Page-->
     <title>Gerer Congés</title>
 
-    <!-- Fontfaces CSS-->
-    <link href="css/font-face.css" rel="stylesheet" media="all">
-    <link href="vendor/font-awesome-4.7/css/font-awesome.min.css" rel="stylesheet" media="all">
-    <link href="vendor/font-awesome-5/css/fontawesome-all.min.css" rel="stylesheet" media="all">
-    <link href="vendor/mdi-font/css/material-design-iconic-font.min.css" rel="stylesheet" media="all">
+    <!-- CSS Stylesheets -->
+    <link href="vendor/bootstrap-4.1/bootstrap.min.css" rel="stylesheet">
+    <link href="vendor/font-awesome-4.7/css/font-awesome.min.css" rel="stylesheet">
+    <link href="vendor/font-awesome-5/css/fontawesome-all.min.css" rel="stylesheet">
+    <link href="vendor/mdi-font/css/material-design-iconic-font.min.css" rel="stylesheet">
+    <link href="vendor/animsition/animsition.min.css" rel="stylesheet">
+    <link href="vendor/bootstrap-progressbar/bootstrap-progressbar-3.3.4.min.css" rel="stylesheet">
+    <link href="vendor/wow/animate.css" rel="stylesheet">
+    <link href="vendor/css-hamburgers/hamburgers.min.css" rel="stylesheet">
+    <link href="vendor/slick/slick.css" rel="stylesheet">
+    <link href="vendor/select2/select2.min.css" rel="stylesheet">
+    <link href="vendor/perfect-scrollbar/perfect-scrollbar.css" rel="stylesheet">
+    <link href="vendor/vector-map/jqvmap.min.css" rel="stylesheet">
+    <link href="css/theme.css" rel="stylesheet">
 
-    <!-- Bootstrap CSS-->
-    <link href="vendor/bootstrap-4.1/bootstrap.min.css" rel="stylesheet" media="all">
+    <!-- Custom Styles -->
+    <style>
+        /* Adjust sidebar and page container */
+        .menu-sidebar2 {
+            width: 250px;
+        }
 
-    <!-- Vendor CSS-->
-    <link href="vendor/animsition/animsition.min.css" rel="stylesheet" media="all">
-    <link href="vendor/bootstrap-progressbar/bootstrap-progressbar-3.3.4.min.css" rel="stylesheet" media="all">
-    <link href="vendor/wow/animate.css" rel="stylesheet" media="all">
-    <link href="vendor/css-hamburgers/hamburgers.min.css" rel="stylesheet" media="all">
-    <link href="vendor/slick/slick.css" rel="stylesheet" media="all">
-    <link href="vendor/select2/select2.min.css" rel="stylesheet" media="all">
-    <link href="vendor/perfect-scrollbar/perfect-scrollbar.css" rel="stylesheet" media="all">
-    <link href="vendor/vector-map/jqvmap.min.css" rel="stylesheet" media="all">
+        .page-container2 {
+            margin-left: 250px;
+            padding-top: 70px; /* Ensure space for the header */
+            position: relative;
+        }
 
-    <!-- Main CSS-->
-    <link href="css/theme.css" rel="stylesheet" media="all">
+        /* Adjust header position */
+        .header-desktop2 {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: #fff;
+            z-index: 1000;
+        }
 
+        /* Adjust table styles */
+        #leave_requests_div {
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            border: 1px solid #dddddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+    </style>
 </head>
-
-<style>
-.menu-sidebar2 {
-    width: 250px; /* Adjust width as needed */
-}
-
-/* Add margin to main content area */
-.page-container2 {
-    margin-left: 250px; /* Same as sidebar width */
-}
-</style>
-
-<style>
-.menu-sidebar2 {
-    width: 250px; /* Adjust width as needed */
-}
-
-/* Add margin to main content area */
-.page-container2 {
-    margin-left: 250px; /* Same as sidebar width */
-}
-</style>
-</style>
 <body class="animsition">
     <div class="page-wrapper">
         <!-- MENU SIDEBAR-->
@@ -128,15 +143,16 @@ if (isset($_SESSION['email'])) {
                 </a>
             </div>
             <div class="menu-sidebar2__content js-scrollbar1">
-                <div class="account2">                        <h4 class="name">
-                    <?php
-                    echo $employee_name;
-                    ?>
+                <div class="account2">
+                    <h4 class="name">
+                        <?php
+                        echo $employee_name;
+                        ?>
                     </h4>
-                        <form method="post" action="logout">
-                            <button type="submit" name="logout">Logout</button>
-                        </form>
-                    </div>
+                    <form method="post" action="logout">
+                        <button type="submit" name="logout">Logout</button>
+                    </form>
+                </div>
                 <nav class="navbar-sidebar2" aria-label="Sidebar Navigation">
                     <ul class="list-unstyled navbar__list">
 
@@ -183,59 +199,20 @@ if (isset($_SESSION['email'])) {
                                 </a>
                             </div>
                             <div class="header-button2">
-                                <div class="header-button-item has-noti js-item-menu">
-                                    <i class="zmdi zmdi-notifications"></i>
-                                    <div class="notifi-dropdown js-dropdown">
-                                        <div class="notifi__title">
-                                            <p>You have 3 Notifications</p>
-                                        </div>
-                                        <div class="notifi__item">
-                                            <div class="bg-c1 img-cir img-40">
-                                                <i class="zmdi zmdi-email-open"></i>
-                                            </div>
-                                            <div class="content">
-                                                <p>You got a email notification</p>
-                                                <span class="date">April 12, 2018 06:50</span>
-                                            </div>
-                                        </div>
-                                        <div class="notifi__item">
-                                            <div class="bg-c2 img-cir img-40">
-                                                <i class="zmdi zmdi-account-box"></i>
-                                            </div>
-                                            <div class="content">
-                                                <p>Your account has been blocked</p>
-                                                <span class="date">April 12, 2018 06:50</span>
-                                            </div>
-                                        </div>
-                                        <div class="notifi__item">
-                                            <div class="bg-c3 img-cir img-40">
-                                                <i class="zmdi zmdi-file-text"></i>
-                                            </div>
-                                            <div class="content">
-                                                <p>You got a new file</p>
-                                                <span class="date">April 12, 2018 06:50</span>
-                                            </div>
-                                        </div>
-                                        <div class="notifi__footer">
-                                            <a href="#">All notifications</a>
-                                        </div>
-                                    </div>
-                                </div>
+                                
                                 <div class="header-button-item mr-0 js-sidebar-btn">
                                     <i class="zmdi zmdi-menu"></i>
                                 </div>
                                 <div class="setting-menu js-right-sidebar d-none d-lg-block">
                                     <div class="account-dropdown__body">
                                         <div class="account-dropdown__item">
-                                            <a href="#">
+                                            <a href="account.php">
                                                 <i class="zmdi zmdi-account"></i>Account</a>
                                         </div>
-                                        <div class="account-dropdown__item">
-                                            <a href="#">
-                                                <i class="zmdi zmdi-settings"></i>Setting</a>
-                                        </div>
+
 
                                     </div>
+
                                 </div>
                             </div>
                         </div>
@@ -249,155 +226,138 @@ if (isset($_SESSION['email'])) {
                     </a>
                 </div>
                 <div class="menu-sidebar2__content js-scrollbar2">
-                    <div class="account2">                        <h4 class="name">
-                    <?php
-                    echo $employee_name;
-                    ?>
-                    </h4>
+                    <div class="account2">
+                        <h4 class="name">
+                            <?php
+                            echo $employee_name;
+                            ?>
+                        </h4>
                         <form method="post" action="logout">
                             <button type="submit" name="logout">Logout</button>
                         </form>
                     </div>
-                    </div>
-                    <nav class="navbar-sidebar2">
-                        <ul class="list-unstyled navbar__list">
-                            <li class="active has-sub">
-                                <a class="js-arrow" href="#">
-                                    <i class="fas fa-tachometer-alt"></i>Dashboard
-                                    <span class="arrow">
-                                        <i class="fas fa-angle-down"></i>
-                                    </span>
-                                </a>
-                                 
-                            </li>
-                            <li>
-                                <a href="inbox.html">
-                                    <i class="fas fa-chart-bar"></i>Gerer Evaluation</a>
-                                <span class="inbox-num">3</span>
-                            </li>
-                            <li>
-                                <a href="#">
-                                    <i class="fas fa-shopping-basket"></i>Gérer Demande Congé</a>
-                            </li>
-
-                        </ul>
-                    </nav>
                 </div>
-            </aside>
-            <!-- END HEADER DESKTOP-->
+                <nav class="navbar-sidebar2">
+                    <ul class="list-unstyled navbar__list">
+                        <li class="active has-sub">
+                            <a class="js-arrow" href="#">
+                                <i class="fas fa-tachometer-alt"></i>Dashboard
+                                <span class="arrow">
+                                    <i class="fas fa-angle-down"></i>
+                                </span>
+                            </a>
 
-            <!-- BREADCRUMB-->
-            <section class="au-breadcrumb m-t-75">
-                <div class="section__content section__content--p30">
-                    <div class="container-fluid">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="au-breadcrumb-content">
-                                    <div class="au-breadcrumb-left">
-                                        <span class="au-breadcrumb-span">You are here:</span>
-                                        <ul class="list-unstyled list-inline au-breadcrumb__list">
-                                            <li class="list-inline-item active">
-                                                <a href="#">Home</a>
-                                            </li>
-                                            <li class="list-inline-item seprate">
-                                                <span>/</span>
-                                            </li>
-                                            <li class="list-inline-item">Dashboard</li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-            <!-- END BREADCRUMB-->
+                        </li>
+                        <li>
+                            <a href="inbox.html">
+                                <i class="fas fa-chart-bar"></i>Gerer Evaluation</a>
+                            <span class="inbox-num">3</span>
+                        </li>
+                        <li>
+                            <a href="#">
+                                <i class="fas fa-shopping-basket"></i>Gérer Demande Congé</a>
+                        </li>
 
+                    </ul>
+                </nav>
+        </div>
+        </aside>
+        <!-- END HEADER DESKTOP-->
+
+        <!-- BREADCRUMB-->
+
+        <!-- END BREADCRUMB-->
+        <section>
             <div id="leave_requests_div">
-    <?php
-// check conn
-if ($conn === false) {
-    echo "Could not connect.\n";
-    die(print_r(sqlsrv_errors(), true));
-}
+                <?php
+                // check conn
+                if ($conn === false) {
+                    echo "Could not connect.\n";
+                    die(print_r(sqlsrv_errors(), true));
+                }
 
-$sql = "SELECT lr.RequestID, lr.EmployeeID, lr.RequestDate, lr.StartDate, lr.EndDate, lr.Status, lr.ManagerID, e.FirstName, e.LastName
+                $sql = "SELECT lr.RequestID, lr.EmployeeID, lr.RequestDate, lr.StartDate, lr.EndDate, lr.Status, lr.ManagerID, e.FirstName, e.LastName
         FROM LeaveRequests lr
         INNER JOIN Employees e ON lr.EmployeeID = e.EmployeeID";
-$stmt = sqlsrv_query($conn, $sql);
+                $stmt = sqlsrv_query($conn, $sql);
 
-if ($stmt !== false) {
-    // Output data of each row
-    echo '<table border="1">';
-    echo '<thead><tr><th>Request ID</th><th>Employee Name</th><th>Request Date</th><th>Start Date</th><th>End Date</th><th>Status</th><th>Manager ID</th><th>Action</th></tr></thead>';
-    echo '<tbody>';
-    while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
-        $employeeName = $row["FirstName"] . ' ' . $row["LastName"];
-        echo '<tr>';
-        echo '<td>' . $row["RequestID"] . '</td>';
-        echo '<td>' . $employeeName . '</td>';
-        echo '<td>' . $row["RequestDate"]->format('Y-m-d') . '</td>';
-        echo '<td>' . $row["StartDate"]->format('Y-m-d') . '</td>';
-        echo '<td>' . $row["EndDate"]->format('Y-m-d') . '</td>';
-        echo '<td>' . $row["Status"] . '</td>';
-        echo '<td>' . $row["ManagerID"] . '</td>';
-        echo '<td>';
-        // Approve form
-        echo '<form method="post">';
-        echo '<input type="hidden" name="request_id" value="' . $row["RequestID"] . '">';
-        echo '<input type="hidden" name="status" value="Approved">';
-        echo '<button type="submit" name="action" value="approve">Approve</button>';
-        echo '</form>';
-        // Reject form
-        echo '<form  method="post">';
-        echo '<input type="hidden" name="request_id" value="' . $row["RequestID"] . '">';
-        echo '<input type="hidden" name="status" value="Rejected">';
-        echo '<button type="submit" name="action" value="reject">Reject</button>';
-        echo '</form>';
-        echo '</td>';
-        echo '</tr>';
-    }
-    echo '</tbody>';
-    echo '</table>';
-} else {
-    echo "No leave requests found.";
-}
+                if ($stmt !== false) {
+                    // Output data of each row
+                    echo '<table border="1">';
+                    echo '<thead><tr><th>Request ID</th><th>Employee Name</th><th>Request Date</th><th>Start Date</th><th>End Date</th><th>Status</th><th>Manager ID</th><th>Action</th></tr></thead>';
+                    echo '<tbody>';
+                    while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
+                        $employeeName = $row["FirstName"] . ' ' . $row["LastName"];
+                        echo '<tr>';
+                        echo '<td>' . $row["RequestID"] . '</td>';
+                        echo '<td>' . $employeeName . '</td>';
+                        echo '<td>' . $row["RequestDate"]->format('Y-m-d') . '</td>';
+                        echo '<td>' . $row["StartDate"]->format('Y-m-d') . '</td>';
+                        echo '<td>' . $row["EndDate"]->format('Y-m-d') . '</td>';
+                        echo '<td>' . $row["Status"] . '</td>';
+                        echo '<td>' . $row["ManagerID"] . '</td>';
+                        echo '<td>';
+                        // Approve form
+                        echo '<form method="post">';
+                        echo '<input type="hidden" name="request_id" value="' . $row["RequestID"] . '">';
+                        echo '<input type="hidden" name="status" value="Approved">';
+                        echo '<button type="submit" name="action" value="approve">Approve</button>';
+                        echo '</form>';
+                        // Reject form
+                        echo '<form  method="post">';
+                        echo '<input type="hidden" name="request_id" value="' . $row["RequestID"] . '">';
+                        echo '<input type="hidden" name="status" value="Rejected">';
+                        echo '<button type="submit" name="action" value="reject">Reject</button>';
+                        echo '</form>';
+                        echo '</td>';
+                        echo '</tr>';
+                    }
+                    echo '</tbody>';
+                    echo '</table>';
+                } else {
+                    echo "No leave requests found.";
+                }
 
-sqlsrv_free_stmt($stmt);
-sqlsrv_close($conn);
-?>
+                sqlsrv_free_stmt($stmt);
+                sqlsrv_close($conn);
+                ?>
 
-</div>
-
-<style>
-    #leave_requests_div {
-        margin-top: 20px;
-    }
-
-    table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-
-    th, td {
-        border: 1px solid #dddddd;
-        padding: 8px;
-        text-align: left;
-    }
-
-    th {
-        background-color: #f2f2f2;
-    }
-
-    tr:nth-child(even) {
-        background-color: #f2f2f2;
-    }
-</style>
             </div>
 
-        </div>
+            </section>
+
+            <style>
+                #leave_requests_div {
+                    margin-top: 20px;
+                }
+
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                }
+
+                th,
+                td {
+                    border: 1px solid #dddddd;
+                    padding: 8px;
+                    text-align: left;
+                }
+
+                th {
+                    background-color: #f2f2f2;
+                }
+
+                tr:nth-child(even) {
+                    background-color: #f2f2f2;
+                }
+            </style>
+            
+    </div>
 
     </div>
+
+    </div>
+    
 
     <!-- Jquery JS-->
     <script src="vendor/jquery-3.2.1.min.js"></script>
