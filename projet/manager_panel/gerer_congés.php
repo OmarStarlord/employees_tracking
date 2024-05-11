@@ -7,6 +7,14 @@ if (isset($_SESSION['email'])) {
 
     // Get employee email from session variable
     $email = $_SESSION['email'];
+    $sql = "SELECT * FROM Employees WHERE Email = '$email'";
+    $stmt = sqlsrv_query($conn, $sql);
+    if ($stmt === false) {
+        die(print_r(sqlsrv_errors(), true));
+    }
+    $row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
+    $employee_name = $row['FirstName'] . ' ' . $row['LastName'] ;
+    $departmentId = $row['DepartmentID'];
 
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Retrieve data from the form
@@ -14,7 +22,7 @@ if (isset($_SESSION['email'])) {
         $status = $_POST['status'];
 
         // Prepare the SQL statement
-        $sql = "UPDATE LeaveRequests SET Status = ? WHERE RequestID = ? AND EmployeeEmail = ?";
+        $sql = "UPDATE LeaveRequests SET Status = ? WHERE RequestID = ? AND EmployeeID = (SELECT EmployeeID FROM Employees WHERE Email = ?)";
         $params = array($status, $requestID, $email);
         $stmt = sqlsrv_query($conn, $sql, $params);
 
@@ -62,7 +70,7 @@ if (isset($_SESSION['email'])) {
     <meta name="keywords" content="au theme template">
 
     <!-- Title Page-->
-    <title>Dashboard 2</title>
+    <title>Gerer Congés</title>
 
     <!-- Fontfaces CSS-->
     <link href="css/font-face.css" rel="stylesheet" media="all">
@@ -88,26 +96,48 @@ if (isset($_SESSION['email'])) {
 
 </head>
 
+<style>
+.menu-sidebar2 {
+    width: 250px; /* Adjust width as needed */
+}
+
+/* Add margin to main content area */
+.page-container2 {
+    margin-left: 250px; /* Same as sidebar width */
+}
+</style>
+
+<style>
+.menu-sidebar2 {
+    width: 250px; /* Adjust width as needed */
+}
+
+/* Add margin to main content area */
+.page-container2 {
+    margin-left: 250px; /* Same as sidebar width */
+}
+</style>
+</style>
 <body class="animsition">
     <div class="page-wrapper">
         <!-- MENU SIDEBAR-->
-        <aside class="menu-sidebar2">
+        <aside class="menu-sidebar2" aria-label="Menu Sidebar">
             <div class="logo">
                 <a href="#">
                     <img src="images/icon/logo-white.png" alt="Cool Admin" />
                 </a>
             </div>
             <div class="menu-sidebar2__content js-scrollbar1">
-                <div class="account2">
-                    <div class="image img-cir img-120">
-                        <img src="images/icon/avatar-big-01.jpg" alt="John Doe" />
+                <div class="account2">                        <h4 class="name">
+                    <?php
+                    echo $employee_name;
+                    ?>
+                    </h4>
+                        <form method="post" action="logout">
+                            <button type="submit" name="logout">Logout</button>
+                        </form>
                     </div>
-                    <h4 class="name">john doe</h4>
-                    <form method="post" action="">
-    <button type="submit" name="logout">Logout</button>
-</form>
-                </div>
-                <nav class="navbar-sidebar2">
+                <nav class="navbar-sidebar2" aria-label="Sidebar Navigation">
                     <ul class="list-unstyled navbar__list">
 
                         <li>
@@ -126,7 +156,7 @@ if (isset($_SESSION['email'])) {
                                 <i class="fas fa-chart-bar"></i>Assigner Tache </a>
                         </li>
                         <li>
-                            <a href="gerer_demande_conge.php">
+                            <a href="gerer_congés.php">
                                 <i class="fas fa-shopping-basket"></i>Gerer Demande Congé</a>
                         </li>
                         <li>
@@ -219,14 +249,15 @@ if (isset($_SESSION['email'])) {
                     </a>
                 </div>
                 <div class="menu-sidebar2__content js-scrollbar2">
-                    <div class="account2">
-                        <div class="image img-cir img-120">
-                            <img src="images/icon/avatar-big-01.jpg" alt="John Doe" />
-                        </div>
-                        <h4 class="name">john doe</h4>
-                        <form method="post" action="">
-    <button type="submit" name="logout">Logout</button>
-</form>
+                    <div class="account2">                        <h4 class="name">
+                    <?php
+                    echo $employee_name;
+                    ?>
+                    </h4>
+                        <form method="post" action="logout">
+                            <button type="submit" name="logout">Logout</button>
+                        </form>
+                    </div>
                     </div>
                     <nav class="navbar-sidebar2">
                         <ul class="list-unstyled navbar__list">
@@ -237,24 +268,7 @@ if (isset($_SESSION['email'])) {
                                         <i class="fas fa-angle-down"></i>
                                     </span>
                                 </a>
-                                <ul class="list-unstyled navbar__sub-list js-sub-list">
-                                    <li>
-                                        <a href="index.html">
-                                            <i class="fas fa-tachometer-alt"></i>Dashboard 1</a>
-                                    </li>
-                                    <li>
-                                        <a href="index2.html">
-                                            <i class="fas fa-tachometer-alt"></i>Dashboard 2</a>
-                                    </li>
-                                    <li>
-                                        <a href="index3.html">
-                                            <i class="fas fa-tachometer-alt"></i>Dashboard 3</a>
-                                    </li>
-                                    <li>
-                                        <a href="index4.html">
-                                            <i class="fas fa-tachometer-alt"></i>Dashboard 4</a>
-                                    </li>
-                                </ul>
+                                 
                             </li>
                             <li>
                                 <a href="inbox.html">

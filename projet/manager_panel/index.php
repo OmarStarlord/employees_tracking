@@ -6,6 +6,26 @@ include 'config.php';
 if (isset($_SESSION['email'])) {
     // get employee name from session variable
     $email = $_SESSION['email'];
+    $sql = "SELECT * FROM Employees WHERE Email = '$email'";
+    $stmt = sqlsrv_query($conn, $sql);
+    if ($stmt === false) {
+        die(print_r(sqlsrv_errors(), true));
+    }
+    $row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
+    $employee_name = $row['FirstName'] . ' ' . $row['LastName'] ;
+    $departmentId = $row['DepartmentID'];
+
+   
+    $sql = "SELECT * FROM Employees WHERE Email = '$email'";
+    $stmt = sqlsrv_query($conn, $sql);
+    if ($stmt === false) {
+        die(print_r(sqlsrv_errors(), true));
+    }
+    $row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
+    $employee_name = $row['FirstName'] . ' ' . $row['LastName'] ;
+    $departmentId = $row['DepartmentID'];
+
+
 
     // Connect to the database
     $conn = sqlsrv_connect($serverName, $connectionOptions);
@@ -54,7 +74,7 @@ if (isset($_SESSION['email'])) {
     <meta name="keywords" content="au theme template">
 
     <!-- Title Page-->
-    <title>Dashboard 2</title>
+    <title>Dashboard</title>
 
     <!-- Fontfaces CSS-->
     <link href="css/font-face.css" rel="stylesheet" media="all">
@@ -78,12 +98,28 @@ if (isset($_SESSION['email'])) {
     <!-- Main CSS-->
     <link href="css/theme.css" rel="stylesheet" media="all">
 
+     <!-- Include Chart.js library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+    <!-- Include jQuery library -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 </head>
+
+<style>
+.menu-sidebar2 {
+    width: 250px; /* Adjust width as needed */
+}
+
+/* Add margin to main content area */
+.page-container2 {
+    margin-left: 250px; /* Same as sidebar width */
+}
+</style>
 
 <body class="animsition">
     <div class="page-wrapper">
         <!-- MENU SIDEBAR-->
-        <aside class="menu-sidebar2">
+        <aside class="menu-sidebar2" aria-label="Menu Sidebar">
             <div class="logo">
                 <a href="#">
                     <img src="images/icon/logo-white.png" alt="Cool Admin" />
@@ -91,10 +127,11 @@ if (isset($_SESSION['email'])) {
             </div>
             <div class="menu-sidebar2__content js-scrollbar1">
                 <div class="account2">
-                    <div class="image img-cir img-120">
-                        <img src="images/icon/avatar-big-01.jpg" alt="John Doe" />
-                    </div>
-                    <h4 class="name">john doe</h4>
+                    <h4 class="name">
+                    <?php
+                    echo $employee_name;
+                    ?>
+                    </h4>
                     <form method="post" action="">
                         <button type="submit" name="logout">Logout</button>
                     </form>
@@ -152,13 +189,10 @@ if (isset($_SESSION['email'])) {
                                 <div class="setting-menu js-right-sidebar d-none d-lg-block">
                                     <div class="account-dropdown__body">
                                         <div class="account-dropdown__item">
-                                            <a href="#">
+                                            <a href="account.php">
                                                 <i class="zmdi zmdi-account"></i>Account</a>
                                         </div>
-                                        <div class="account-dropdown__item">
-                                            <a href="#">
-                                                <i class="zmdi zmdi-settings"></i>Setting</a>
-                                        </div>
+                                        
 
                                     </div>
 
@@ -169,18 +203,13 @@ if (isset($_SESSION['email'])) {
                 </div>
             </header>
             <aside class="menu-sidebar2 js-right-sidebar d-block d-lg-none">
-                <div class="logo">
-                    <a href="#">
-                        <img src="images/icon/logo-white.png" alt="Cool Admin" />
-                    </a>
-                </div>
                 <div class="menu-sidebar2__content js-scrollbar2">
-                    <div class="account2">
-                        <div class="image img-cir img-120">
-                            <img src="images/icon/avatar-big-01.jpg" alt="John Doe" />
-                        </div>
-                        <h4 class="name">john doe</h4>
-                        <form method="post" action="">
+                    <div class="account2">                        <h4 class="name">
+                    <?php
+                    echo $employee_name;
+                    ?>
+                    </h4>
+                        <form method="post" action="logout">
                             <button type="submit" name="logout">Logout</button>
                         </form>
                     </div>
@@ -290,110 +319,89 @@ if (isset($_SESSION['email'])) {
             <!-- END STATISTIC-->
 
             <section>
-                <div class="section__content section__content--p30">
-                    <div class="container-fluid">
-                        <div class="row">
-                            <div class="col-xl-8">
-                                <!-- RECENT REPORT 2-->
-                                <div class="recent-report2">
-                                    <h3 class="title-3">recent reports</h3>
-                                    <div class="chart-info">
-                                        <div class="chart-info__left">
-                                            <div class="chart-note">
-                                                <span class="dot dot--blue"></span>
-                                                <span>products</span>
-                                            </div>
-                                            <div class="chart-note">
-                                                <span class="dot dot--green"></span>
-                                                <span>Services</span>
-                                            </div>
-                                        </div>
-                                        <div class="chart-info-right">
-                                            <div class="rs-select2--dark rs-select2--md m-r-10">
-                                                <select class="js-select2" name="property">
-                                                    <option selected="selected">All Properties</option>
-                                                    <option value="">Products</option>
-                                                    <option value="">Services</option>
-                                                </select>
-                                                <div class="dropDownSelect2"></div>
-                                            </div>
-                                            <div class="rs-select2--dark rs-select2--sm">
-                                                <select class="js-select2 au-select-dark" name="time">
-                                                    <option selected="selected">All Time</option>
-                                                    <option value="">By Month</option>
-                                                    <option value="">By Day</option>
-                                                </select>
-                                                <div class="dropDownSelect2"></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="recent-report__chart">
-                                        <canvas id="recent-rep2-chart"></canvas>
-                                    </div>
-                                </div>
-                                <!-- END RECENT REPORT 2             -->
-                            </div>
-                            <div class="col-xl-4">
-                                <!-- TASK PROGRESS-->
-                                <div class="task-progress">
-                                    <h3 class="title-3">task progress</h3>
-                                    <div class="au-skill-container">
-                                        <div class="au-progress">
-                                            <span class="au-progress__title">Web Design</span>
-                                            <div class="au-progress__bar">
-                                                <div class="au-progress__inner js-progressbar-simple" role="progressbar"
-                                                    data-transitiongoal="90">
-                                                    <span class="au-progress__value js-value"></span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="au-progress">
-                                            <span class="au-progress__title">HTML5/CSS3</span>
-                                            <div class="au-progress__bar">
-                                                <div class="au-progress__inner js-progressbar-simple" role="progressbar"
-                                                    data-transitiongoal="85">
-                                                    <span class="au-progress__value js-value"></span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="au-progress">
-                                            <span class="au-progress__title">WordPress</span>
-                                            <div class="au-progress__bar">
-                                                <div class="au-progress__inner js-progressbar-simple" role="progressbar"
-                                                    data-transitiongoal="95">
-                                                    <span class="au-progress__value js-value"></span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="au-progress">
-                                            <span class="au-progress__title">Support</span>
-                                            <div class="au-progress__bar">
-                                                <div class="au-progress__inner js-progressbar-simple" role="progressbar"
-                                                    data-transitiongoal="95">
-                                                    <span class="au-progress__value js-value"></span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- END TASK PROGRESS-->
-                            </div>
-                        </div>
-                    </div>
-                </div>
+             <div class="task-status-container">
+        <canvas id="completed-tasks-chart"></canvas>
+
+        <?php
+        
+        include 'config.php';
+        if ($conn === false) {
+            die("Error: Could not connect to the database. " . print_r(sqlsrv_errors(), true));
+        }
+
+        
+        $managerDepartmentID = $departmentId;
+
+        
+        $sql = "
+            SELECT
+                SUM(CASE WHEN t.TaskStatus = 'completed' THEN 1 ELSE 0 END) AS CompletedTasksCount,
+                SUM(CASE WHEN t.TaskStatus != 'completed' THEN 1 ELSE 0 END) AS IncompleteTasksCount
+            FROM Tasks t
+            INNER JOIN Employees e ON t.EmployeeID = e.EmployeeID
+            WHERE e.DepartmentID = ?
+        ";
+
+        // Execute the query
+        $params = array($managerDepartmentID);
+        $stmt = sqlsrv_query($conn, $sql, $params);
+
+        if ($stmt === false) {
+            die("Error: Could not execute query. " . print_r(sqlsrv_errors(), true));
+        }
+
+        // Fetch the result
+        $row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
+
+        // Close the connection
+        sqlsrv_close($conn);
+
+        // Get the completed and incomplete tasks counts
+        $completedTasksCount = $row['CompletedTasksCount'];
+        $incompleteTasksCount = $row['IncompleteTasksCount'];
+        ?>
+
+        <script>
+            $(document).ready(function () {
+                // Chart data
+                var data = {
+                    labels: ['Completed Tasks', 'Incomplete Tasks'],
+                    datasets: [{
+                        label: 'Tasks',
+                        data: [<?php echo $completedTasksCount; ?>, <?php echo $incompleteTasksCount; ?>],
+                        backgroundColor: [
+                            'rgba(54, 162, 235, 0.5)',
+                            'rgba(255, 99, 132, 0.5)'
+                        ],
+                        borderColor: [
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 99, 132, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                };
+
+                var options = {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                };
+
+                // Get context with jQuery
+                var ctx = $('#completed-tasks-chart');
+
+                // Create bar chart
+                var completedTasksChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: data,
+                    options: options
+                });
+            });
+        </script>
+    </div>
             </section>
-
-            <section>
-                <div class="section__content section__content--p30">
-                    <div class="container-fluid">
-                        <div class="row">
-
-                        </div>
-
-                    </div>
-                </div>
-        </div>
-        </section>
 
 
         <!-- END PAGE CONTAINER-->

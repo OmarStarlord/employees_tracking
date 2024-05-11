@@ -68,6 +68,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <title>Login</title>
 </head>
 
+<style>
+.menu-sidebar2 {
+    width: 250px; /* Adjust width as needed */
+}
+
+/* Add margin to main content area */
+.page-container2 {
+    margin-left: 250px; /* Same as sidebar width */
+}
+</style>
+
 <body>
     <h2>Login</h2>
     <?php

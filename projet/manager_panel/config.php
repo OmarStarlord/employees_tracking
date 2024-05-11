@@ -15,8 +15,7 @@ $connectionOptions = array(
 // Establishes the connection
 $conn = sqlsrv_connect($serverName, $connectionOptions);
 
-// if working echo working
-echo "working";
+
 
 // Check if the connection is successful
 if ($conn === false) {

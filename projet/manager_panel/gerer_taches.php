@@ -1,40 +1,23 @@
 <?php
-
 session_start();
 
-require_once 'config.php';
-include 'classes/_task.php';
-
-
+include 'config.php';
 
 if (isset($_SESSION['email'])) {
 
     // Get employee email from session variable
     $email = $_SESSION['email'];
-$sql = "SELECT * FROM Employees WHERE Email = '$email'";
+    $sql = "SELECT * FROM Employees WHERE Email = '$email'";
     $stmt = sqlsrv_query($conn, $sql);
     if ($stmt === false) {
         die(print_r(sqlsrv_errors(), true));
     }
     $row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
-    $employee_name = $row['FirstName'] . ' ' . $row['LastName'] ;
+    $employee_name = $row['FirstName'] . ' ' . $row['LastName'];
     $departmentId = $row['DepartmentID'];
 
 
-    if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        $taskName = $_POST['task_name'];
-        $taskDescription = $_POST['description'];
-        $taskStatus = "Not Started";
-        $taskPriority = $_POST['task_priority'];
-        $taskDueDate = $_POST['deadline'];
-        $employeeID = $_POST['employee_id'];
 
-        // Create a new Task object
-        $task = new Task($taskName, $taskDescription, $taskStatus, $taskPriority, $taskDueDate, $employeeID);
-
-        // Insert the new task
-        $task->insert($conn);
-    }
 
     // Logout
     if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['logout'])) {
@@ -49,6 +32,8 @@ $sql = "SELECT * FROM Employees WHERE Email = '$email'";
 }
 ?>
 
+
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -61,7 +46,7 @@ $sql = "SELECT * FROM Employees WHERE Email = '$email'";
     <meta name="keywords" content="au theme template">
 
     <!-- Title Page-->
-    <title>Assigner Taches</title>
+    <title>Gérer Taches</title>
 
     <!-- Fontfaces CSS-->
     <link href="css/font-face.css" rel="stylesheet" media="all">
@@ -120,6 +105,7 @@ $sql = "SELECT * FROM Employees WHERE Email = '$email'";
                 </div>
                 <nav class="navbar-sidebar2">
                     <ul class="list-unstyled navbar__list">
+
                         <li>
                             <a href="index.php">
                                 <i class="fas fa-shopping-basket"></i>Dashboard</a>
@@ -131,10 +117,9 @@ $sql = "SELECT * FROM Employees WHERE Email = '$email'";
                         <li>
                             <a href="creer_evaluation.php">
                                 <i class="fas fa-chart-bar"></i>Assigner Evaluation</a>
-                        </li>
                         <li>
                             <a href="assigner_tache.php">
-                                <i class="fas fa-chart-bar"></i>Assigner Tache</a>
+                                <i class="fas fa-chart-bar"></i>Assigner Tache </a>
                         </li>
                         <li>
                             <a href="gerer_congés.php">
@@ -144,6 +129,7 @@ $sql = "SELECT * FROM Employees WHERE Email = '$email'";
                             <a href="gerer_evaluations.php">
                                 <i class="fas fa-shopping-basket"></i>Gerer Evaluation</a>
                         </li>
+
                     </ul>
                 </nav>
             </div>
@@ -214,6 +200,7 @@ $sql = "SELECT * FROM Employees WHERE Email = '$email'";
                                             <a href="#">
                                                 <i class="zmdi zmdi-settings"></i>Setting</a>
                                         </div>
+
                                     </div>
                                 </div>
                             </div>
@@ -246,6 +233,7 @@ $sql = "SELECT * FROM Employees WHERE Email = '$email'";
                                         <i class="fas fa-angle-down"></i>
                                     </span>
                                 </a>
+                                 
                             </li>
                             <li>
                                 <a href="inbox.html">
@@ -256,6 +244,7 @@ $sql = "SELECT * FROM Employees WHERE Email = '$email'";
                                 <a href="#">
                                     <i class="fas fa-shopping-basket"></i>Gérer Demande Congé</a>
                             </li>
+
                         </ul>
                     </nav>
                 </div>
@@ -289,81 +278,100 @@ $sql = "SELECT * FROM Employees WHERE Email = '$email'";
             </section>
             <!-- END BREADCRUMB-->
 
-            <!-- Assigner Evaluation -->
-            <form method="POST"
-                style="max-width: 400px; margin: auto; padding: 20px; background-color: #f9f9f9; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
-                <h2 style="text-align: center; margin-bottom: 20px;">Créer une nouvelle tâche</h2>
 
-                <label for="task_name" style="display: block; margin-bottom: 5px;">Nom de la tâche:</label>
-                <input type="text" id="task_name" name="task_name" required
-                    style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; margin-bottom: 15px;">
+            <!-- MAIN CONTENT-->
+            
+            <?php
 
-                <label for="employee_id" style="display: block; margin-bottom: 5px;">Employé:</label>
-                <select id="employee_id" name="employee_id" required
-                    style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; margin-bottom: 15px;">
-                    <?php
-                    $sql = "SELECT EmployeeID, CONCAT(FirstName, ' ', LastName) AS FullName FROM Employees";
-                    $stmt = sqlsrv_query($conn, $sql);
-
-                    if ($stmt !== false) {
-                        while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
-                            echo "<option value='" . $row['EmployeeID'] . "'>" . $row['FullName'] . "</option>";
-                        }
-                        sqlsrv_free_stmt($stmt);
-                    } else {
-                        echo "<option value=''>No employees found</option>";
-                    }
-                    ?>
-
-                </select>
-
-                <label for="deadline" style="display: block; margin-bottom: 5px;">Date limite:</label>
-                <input type="date" id="deadline" name="deadline" required
-                    style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; margin-bottom: 15px;">
-
-                <label for="task_priority" style="display: block; margin-bottom: 5px;">Priorité:</label>
-                <select id="task_priority" name="task_priority" required
-                    style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; margin-bottom: 15px;">
-                    <option value="Low">Low</option>
-                    <option value="Medium">Medium</option>
-                    <option value="High">High</option>
-                </select>
+include 'config.php';
 
 
-                <label for="description" style="display: block; margin-bottom: 5px;">Description:</label>
-                <textarea id="description" name="description" rows="4" required
-                    style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; margin-bottom: 15px;"></textarea>
+$managerDepartmentID = $departmentId;
 
-                <input type="submit" value="Créer la tâche"
-                    style="width: 100%; padding: 10px; border: none; border-radius: 5px; background-color: #007bff; color: #fff; cursor: pointer; transition: background-color 0.3s ease;">
-            </form>
-            <!-- END Assigner Evaluation -->
-        </div>
-    </div>
 
-    <!-- Jquery JS-->
-    <script src="vendor/jquery-3.2.1.min.js"></script>
-    <!-- Bootstrap JS-->
-    <script src="vendor/bootstrap-4.1/popper.min.js"></script>
-    <script src="vendor/bootstrap-4.1/bootstrap.min.js"></script>
-    <!-- Vendor JS-->
-    <script src="vendor/slick/slick.min.js"></script>
-    <script src="vendor/wow/wow.min.js"></script>
-    <script src="vendor/animsition/animsition.min.js"></script>
-    <script src="vendor/bootstrap-progressbar/bootstrap-progressbar.min.js"></script>
-    <script src="vendor/counter-up/jquery.waypoints.min.js"></script>
-    <script src="vendor/counter-up/jquery.counterup.min.js"></script>
-    <script src="vendor/circle-progress/circle-progress.min.js"></script>
-    <script src="vendor/perfect-scrollbar/perfect-scrollbar.js"></script>
-    <script src="vendor/chartjs/Chart.bundle.min.js"></script>
-    <script src="vendor/select2/select2.min.js"></script>
-    <script src="vendor/vector-map/jquery.vmap.js"></script>
-    <script src="vendor/vector-map/jquery.vmap.min.js"></script>
-    <script src="vendor/vector-map/jquery.vmap.sampledata.js"></script>
-    <script src="vendor/vector-map/jquery.vmap.world.js"></script>
+$sql = "
+    SELECT e.FirstName + ' ' + e.LastName AS EmployeeName,
+           t.TaskName,
+           t.TaskDueDate,
+           t.TaskStatus
+    FROM Tasks t
+    INNER JOIN Employees e ON t.EmployeeID = e.EmployeeID
+    WHERE e.DepartmentID = ?;
+";
 
-    <!-- Main JS-->
-    <script src="js/main.js"></script>
+// Execute the query
+$params = array($managerDepartmentID);
+$stmt = sqlsrv_query($conn, $sql, $params);
+
+
+if ($stmt === false) {
+    echo "Error executing query: " . print_r(sqlsrv_errors(), true);
+} else {
+    
+    echo "<style>
+            table {
+                border-collapse: collapse;
+                width: 100%;
+            }
+            th, td {
+                border: 1px solid #ddd;
+                padding: 8px;
+                text-align: left;
+            }
+            th {
+                background-color: #f2f2f2;
+            }
+          </style>";
+
+    echo "<table>";
+    echo "<tr><th>Employee Name</th><th>Task Name</th><th>Deadline</th><th>Status</th></tr>";
+    while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
+        echo "<tr>";
+        echo "<td>" . $row['EmployeeName'] . "</td>";
+        echo "<td>" . $row['TaskName'] . "</td>";
+        echo "<td>" . date_format($row['TaskDueDate'], 'Y-m-d') . "</td>";
+        echo "<td>" . $row['TaskStatus'] . "</td>";
+        echo "</tr>";
+    }
+    echo "</table>";
+}
+
+
+sqlsrv_free_stmt($stmt);
+sqlsrv_close($conn);
+?>
+
+
+
+
+
+            <!-- Jquery JS-->
+            <script src="vendor/jquery-3.2.1.min.js"></script>
+            <!-- Bootstrap JS-->
+            <script src="vendor/bootstrap-4.1/popper.min.js"></script>
+            <script src="vendor/bootstrap-4.1/bootstrap.min.js"></script>
+            <!-- Vendor JS       -->
+            <script src="vendor/slick/slick.min.js">
+            </script>
+            <script src="vendor/wow/wow.min.js"></script>
+            <script src="vendor/animsition/animsition.min.js"></script>
+            <script src="vendor/bootstrap-progressbar/bootstrap-progressbar.min.js">
+            </script>
+            <script src="vendor/counter-up/jquery.waypoints.min.js"></script>
+            <script src="vendor/counter-up/jquery.counterup.min.js">
+            </script>
+            <script src="vendor/circle-progress/circle-progress.min.js"></script>
+            <script src="vendor/perfect-scrollbar/perfect-scrollbar.js"></script>
+            <script src="vendor/chartjs/Chart.bundle.min.js"></script>
+            <script src="vendor/select2/select2.min.js">
+            </script>
+            <script src="vendor/vector-map/jquery.vmap.js"></script>
+            <script src="vendor/vector-map/jquery.vmap.min.js"></script>
+            <script src="vendor/vector-map/jquery.vmap.sampledata.js"></script>
+            <script src="vendor/vector-map/jquery.vmap.world.js"></script>
+
+            <!-- Main JS-->
+            <script src="js/main.js"></script>
 
 </body>
 

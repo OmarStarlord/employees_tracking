@@ -10,6 +10,14 @@ if (isset($_SESSION['email'])) {
 
     // Get employee email from session variable
     $email = $_SESSION['email'];
+$sql = "SELECT * FROM Employees WHERE Email = '$email'";
+    $stmt = sqlsrv_query($conn, $sql);
+    if ($stmt === false) {
+        die(print_r(sqlsrv_errors(), true));
+    }
+    $row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
+    $employee_name = $row['FirstName'] . ' ' . $row['LastName'] ;
+    $departmentId = $row['DepartmentID'];
 
     // Initialize variables
     $employeeID = 1; // Assuming you have the employee ID available from the session or elsewhere
@@ -119,10 +127,21 @@ sqlsrv_close($conn);
 
 </head>
 
+<style>
+.menu-sidebar2 {
+    width: 250px; /* Adjust width as needed */
+}
+
+/* Add margin to main content area */
+.page-container2 {
+    margin-left: 250px; /* Same as sidebar width */
+}
+</style>
+
 <body class="animsition">
     <div class="page-wrapper">
         <!-- MENU SIDEBAR-->
-        <aside class="menu-sidebar2">
+        <aside class="menu-sidebar2" aria-label="Menu Sidebar">
             <div class="logo">
                 <a href="#">
                     <img src="images/icon/logo-white.png" alt="Cool Admin" />

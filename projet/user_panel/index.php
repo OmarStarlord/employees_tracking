@@ -8,6 +8,14 @@ $evaluationsAmount = 0;
 if (isset($_SESSION['email'])) {
     // Retrieve user's ID from the database
     $email = $_SESSION['email'];
+$sql = "SELECT * FROM Employees WHERE Email = '$email'";
+    $stmt = sqlsrv_query($conn, $sql);
+    if ($stmt === false) {
+        die(print_r(sqlsrv_errors(), true));
+    }
+    $row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
+    $employee_name = $row['FirstName'] . ' ' . $row['LastName'] ;
+    $departmentId = $row['DepartmentID'];
     $sql = "SELECT EmployeeID FROM Employees WHERE Email = ?";
     $params = array($email);
     $stmt = sqlsrv_query($conn, $sql, $params);
@@ -98,10 +106,21 @@ if (isset($_SESSION['email'])) {
 
 </head>
 
+<style>
+.menu-sidebar2 {
+    width: 250px; /* Adjust width as needed */
+}
+
+/* Add margin to main content area */
+.page-container2 {
+    margin-left: 250px; /* Same as sidebar width */
+}
+</style>
+
 <body class="animsition">
     <div class="page-wrapper">
         <!-- MENU SIDEBAR-->
-        <aside class="menu-sidebar2">
+        <aside class="menu-sidebar2" aria-label="Menu Sidebar">
             <div class="logo">
                 <a href="#">
                     <img src="images/icon/logo-white.png" alt="Cool Admin" />
@@ -109,10 +128,11 @@ if (isset($_SESSION['email'])) {
             </div>
             <div class="menu-sidebar2__content js-scrollbar1">
                 <div class="account2">
-                    <div class="image img-cir img-120">
-                        <img src="images/icon/avatar-big-01.jpg" alt="John Doe" />
-                    </div>
-                    <h4 class="name">john doe</h4>
+                    <h4 class="name">
+                    <?php
+                    echo $employee_name;
+                    ?>
+                    </h4>
                     <form method="post" action="">
                         <button type="submit" name="logout">Logout</button>
                     </form>
@@ -314,6 +334,14 @@ if (isset($_SESSION['email'])) {
     if (isset($_SESSION['email'])) {
         // Retrieve user's ID from the database
         $email = $_SESSION['email'];
+$sql = "SELECT * FROM Employees WHERE Email = '$email'";
+    $stmt = sqlsrv_query($conn, $sql);
+    if ($stmt === false) {
+        die(print_r(sqlsrv_errors(), true));
+    }
+    $row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
+    $employee_name = $row['FirstName'] . ' ' . $row['LastName'] ;
+    $departmentId = $row['DepartmentID'];
         $sql = "SELECT EmployeeID FROM Employees WHERE Email = ?";
         $params = array($email);
         $stmt = sqlsrv_query($conn, $sql, $params);
