@@ -255,7 +255,7 @@ if (isset($_SESSION['email'])) {
 
 
             <!-- MAIN CONTENT-->
-            
+            <section>
             <?php
 
 include 'config.php';
@@ -299,7 +299,7 @@ if ($stmt === false) {
           </style>";
 
     echo "<table>";
-    echo "<tr><th>Employee Name</th><th>Task Name</th><th>Deadline</th><th>Status</th></tr>";
+    echo "<tr><th>Employee Name</th><th>Task Name< /th><th>Deadline</th><th>Status</th></tr>";
     while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
         echo "<tr>";
         echo "<td>" . $row['EmployeeName'] . "</td>";
@@ -317,7 +317,7 @@ sqlsrv_close($conn);
 ?>
 
 
-
+</section>
 
 
             <!-- Jquery JS-->

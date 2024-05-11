@@ -254,7 +254,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['logout'])) {
             <!-- END HEADER DESKTOP-->
 
             <!-- BREADCRUMB-->
-            <<div class="page-wrapper">
+            <div class="page-wrapper">
                 <h1>User Tasks</h1>
                 <table>
                     <thead>
